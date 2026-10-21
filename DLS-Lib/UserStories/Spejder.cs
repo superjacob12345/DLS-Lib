@@ -6,36 +6,31 @@ namespace DLS_Lib.UserStories
 {
     public class Spejder
     {
-        private string _navn;
-        private int _alder;
-        private string _brugerNavn;
-        private string _adgangskode;
-        private DateOnly _foeselsdag;
-    
+        private int _id;
+        private string _navn = "";
+        private string _brugerNavn = "";
+        private string _adgangskode = "";
+        private DateOnly _foedselsdato;
 
-    public Spejder(string navn, int alder, string brugerNavn, string adgangskode, DateOnly foeselsdag)
+        public Spejder() { }
+
+        public Spejder(string navn, string brugerNavn, string adgangskode, DateOnly foedselsdato)
         {
             _navn = navn;
-            _alder = alder;
             _brugerNavn = brugerNavn;
             _adgangskode = adgangskode;
-            _foeselsdag = foeselsdag;
-            navn = "";
-            alder = 0;
-            brugerNavn = "";
-            adgangskode = "";
-            foeselsdag = DateOnly.MinValue;
+            _foedselsdato = foedselsdato;
         }
 
+        public int Id
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
         public string Navn
         {
             get { return _navn; }
             set { _navn = value; }
-        }
-        public int Alder
-        {
-            get { return _alder; }
-            set { _alder = value; }
         }
         public string BrugerNavn
         {
@@ -47,41 +42,30 @@ namespace DLS_Lib.UserStories
             get { return _adgangskode; }
             set { _adgangskode = value; }
         }
-        public DateOnly Foeselsdag
+        public DateOnly Foedselsdato
         {
-            get { return _foeselsdag; }
-            set { _foeselsdag = value; }
+            get { return _foedselsdato; }
+            set { _foedselsdato = value; }
         }
-        public Spejder opretSpejder(string navn, int alder, string brugerNavn, string adgangskode, DateOnly foeselsdag)
+
+        // Alder regnes ud fra fødselsdatoen, så den altid passer
+        public int Alder
         {
-            return new Spejder(navn, alder, brugerNavn, adgangskode, foeselsdag);
+            get
+            {
+                DateOnly idag = DateOnly.FromDateTime(DateTime.Today);
+                int alder = idag.Year - _foedselsdato.Year;
+                if (_foedselsdato > idag.AddYears(-alder))
+                {
+                    alder--;
+                }
+                return alder;
+            }
         }
-        public Spejder hentSpejder(string brugerNavn, string adgangskode)
-        {
-            // This method would typically retrieve a Spejder from a database or collection
-            // For demonstration purposes, we will return a new Spejder with the provided credentials
-            return new Spejder("Hentet Navn", 0, brugerNavn, adgangskode, DateOnly.MinValue);
-        }
-        public Spejder opdaterSpejder(string navn, int alder, string brugerNavn, string adgangskode, DateOnly foeselsdag)
-        {
-            _navn = navn;
-            _alder = alder;
-            _brugerNavn = brugerNavn;
-            _adgangskode = adgangskode;
-            _foeselsdag = foeselsdag;
-            return this;
-        }
-        public void sletSpejder()
-        {
-            _navn = null;
-            _alder = 0;
-            _brugerNavn = null;
-            _adgangskode = null;
-            _foeselsdag = DateOnly.MinValue;
-        }
+
         public override string ToString()
         {
-            return $"Navn: {_navn}, Alder: {_alder}, BrugerNavn: {_brugerNavn}, Adgangskode: {_adgangskode}, Fødselsdag: {_foeselsdag}";
+            return $"Id: {_id}, Navn: {_navn}, Alder: {Alder}, BrugerNavn: {_brugerNavn}, Fødselsdato: {_foedselsdato}";
         }
     }
 }
