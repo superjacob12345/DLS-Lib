@@ -5,6 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<AktivitetRepository>();
+builder.Services.AddSingleton<SpejderRepository>();
+builder.Services.AddSingleton<LederRepository>();
+builder.Services.AddSingleton<TegnRepository>();
+builder.Services.AddSingleton<TilmeldingRepository>();
 
 var app = builder.Build();
 

@@ -1,0 +1,43 @@
+@page
+@model DLS_Web.Pages.Tegnene.IndexModel
+@{
+    ViewData["Title"] = "Tegn";
+}
+
+<h1>Tegn</h1>
+
+<p>
+    <a asp-page="Opret" class="btn btn-primary">Opret nyt tegn</a>
+</p>
+
+@if (Model.Tegn.Count == 0)
+{
+    <p>Der er ingen tegn endnu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Navn</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in Model.Tegn)
+            {
+                <tr>
+                    <td>@t.Id</td>
+                    <td>@t.Navn</td>
+                    <td>
+                        <a asp-page="Rediger" asp-route-id="@t.Id" class="btn btn-sm btn-secondary">Rediger</a>
+                        <form method="post" asp-page-handler="Slet" asp-route-id="@t.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Vil du slette @t.Navn?')">Slet</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
