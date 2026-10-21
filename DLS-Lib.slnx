@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DLS-Lib/DLS-Lib.csproj" />
+  <Project Path="DLS-Web/DLS-Web.csproj" />
+</Solution>
