@@ -1,4 +1,49 @@
 ﻿@page
 @model DLS_Web.Pages.Aktiviteter.IndexModel
 @{
+    ViewData["Title"] = "Aktiviteter";
+}
+
+<h1>Aktiviteter</h1>
+
+<p>
+    <a asp-page="Opret" class="btn btn-primary">Opret ny aktivitet</a>
+</p>
+
+@if (Model.Aktiviteter.Count == 0)
+{
+    <p>Der er ingen aktiviteter endnu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Navn</th>
+                <th>Tidspunkt</th>
+                <th>Maks deltagere</th>
+                <th>Min. alder</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Aktiviteter)
+            {
+                <tr>
+                    <td>@a.Id</td>
+                    <td>@a.Navn</td>
+                    <td>@a.Tidspunkt.ToString("dd-MM-yyyy HH:mm")</td>
+                    <td>@a.MaksDeltagere</td>
+                    <td>@a.MinAlder</td>
+                    <td>
+                        <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-sm btn-secondary">Rediger</a>
+                        <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Vil du slette @a.Navn?')">Slet</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }

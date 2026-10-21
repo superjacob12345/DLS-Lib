@@ -24,5 +24,12 @@ namespace DLS_Web.Pages.Aktiviteter
         {
             Aktiviteter = _repo.HentAlle();
         }
+
+        // Kører når der trykkes på "Slet"
+        public IActionResult OnPostSlet(int id)
+        {
+            _repo.Slet(id);
+            return RedirectToPage();
+        }
     }
 }

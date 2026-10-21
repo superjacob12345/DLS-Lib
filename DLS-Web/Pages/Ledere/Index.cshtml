@@ -1,0 +1,45 @@
+@page
+@model DLS_Web.Pages.Ledere.IndexModel
+@{
+    ViewData["Title"] = "Ledere";
+}
+
+<h1>Ledere</h1>
+
+<p>
+    <a asp-page="Opret" class="btn btn-primary">Opret ny leder</a>
+</p>
+
+@if (Model.Ledere.Count == 0)
+{
+    <p>Der er ingen ledere endnu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Navn</th>
+                <th>Brugernavn</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Ledere)
+            {
+                <tr>
+                    <td>@l.Id</td>
+                    <td>@l.Navn</td>
+                    <td>@l.BrugerNavn</td>
+                    <td>
+                        <a asp-page="Rediger" asp-route-id="@l.Id" class="btn btn-sm btn-secondary">Rediger</a>
+                        <form method="post" asp-page-handler="Slet" asp-route-id="@l.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Vil du slette @l.Navn?')">Slet</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

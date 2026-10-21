@@ -1,0 +1,24 @@
+@page
+@model DLS_Web.Pages.Tegnene.OpretModel
+@{
+    ViewData["Title"] = "Opret tegn";
+}
+
+<h1>Opret tegn</h1>
+
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Tegn.Navn" class="form-label">Navn</label>
+        <input asp-for="Tegn.Navn" class="form-control" />
+        <span asp-validation-for="Tegn.Navn" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Opret</button>
+    <a asp-page="Index" class="btn btn-link">Tilbage</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
