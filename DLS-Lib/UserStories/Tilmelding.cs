@@ -6,13 +6,28 @@ namespace DLS_Lib.UserStories
 {
     public class Tilmelding
     {
+        private int _spejderId;
+        private int _aktivitetId;
         private DateOnly _dato;
 
+        public Tilmelding() { }
 
-        public Tilmelding(DateOnly dato)
+        public Tilmelding(int spejderId, int aktivitetId, DateOnly dato)
         {
+            _spejderId = spejderId;
+            _aktivitetId = aktivitetId;
             _dato = dato;
-            dato = DateOnly.MinValue;
+        }
+
+        public int SpejderId
+        {
+            get { return _spejderId; }
+            set { _spejderId = value; }
+        }
+        public int AktivitetId
+        {
+            get { return _aktivitetId; }
+            set { _aktivitetId = value; }
         }
         public DateOnly Dato
         {
@@ -20,25 +35,9 @@ namespace DLS_Lib.UserStories
             set { _dato = value; }
         }
 
-        public Tilmelding opretTilmelding(DateOnly dato)
-        {
-            return new Tilmelding(dato);
-        }
-        public Tilmelding hentTilmelding(DateOnly dato)
-        {
-            return new Tilmelding(dato);
-        }
-        public void opdaterTilmelding(DateOnly dato)
-        {
-            _dato = dato;
-        }
-        public void sletTilmelding()
-        {
-            _dato = DateOnly.MinValue;
-        }
         public override string ToString()
         {
-            return _dato.ToString();
+            return $"SpejderId: {_spejderId}, AktivitetId: {_aktivitetId}, Dato: {_dato}";
         }
     }
 }
