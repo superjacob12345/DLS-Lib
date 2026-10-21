@@ -36,22 +36,28 @@ namespace DLS_Lib.Repository
 
         public void Slet(int id)
         {
-            Aktivitet? aktivitet = HentEn(id);
-            if (aktivitet != null)
+            foreach (Aktivitet a in _aktiviteter)
             {
-                _aktiviteter.Remove(aktivitet);
+                if (a.Id == id)
+                {
+                    _aktiviteter.Remove(a);
+                    return; // stop løkken, ellers giver Remove en fejl
+                }
             }
         }
 
         public void Opdater(Aktivitet aktivitet)
         {
-            Aktivitet? gammel = HentEn(aktivitet.Id);
-            if (gammel != null)
+            foreach (Aktivitet a in _aktiviteter)
             {
-                gammel.Navn = aktivitet.Navn;
-                gammel.Tidspunkt = aktivitet.Tidspunkt;
-                gammel.MaksDeltagere = aktivitet.MaksDeltagere;
-                gammel.MinAlder = aktivitet.MinAlder;
+                if (a.Id == aktivitet.Id)
+                {
+                    a.Navn = aktivitet.Navn;
+                    a.Tidspunkt = aktivitet.Tidspunkt;
+                    a.MaksDeltagere = aktivitet.MaksDeltagere;
+                    a.MinAlder = aktivitet.MinAlder;
+                    return;
+                }
             }
         }
     }
