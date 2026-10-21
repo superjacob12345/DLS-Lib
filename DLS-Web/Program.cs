@@ -1,7 +1,10 @@
+using DLS_Lib.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<AktivitetRepository>();
 
 var app = builder.Build();
 
