@@ -1,0 +1,5 @@
+﻿CREATE Table eprbilhn (
+	id INT PRIMARY KEY,
+	name VARCHAR(100),
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
