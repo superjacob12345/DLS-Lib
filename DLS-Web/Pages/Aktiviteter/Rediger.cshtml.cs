@@ -1,13 +1,30 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Aktiviteter
 {
     // Bruges både til at oprette (uden id) og rette (med id)
-    public class RedigerModel : LederSide
+    public class RedigerModel : PageModel
     {
+        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+            else if (rolle != "Leder")
+            {
+                TempData["Fejl"] = "Den side er kun for ledere";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+
         private AktivitetRepository _aktivitetRepo;
         private LederRepository _lederRepo;
         private TegnRepository _tegnRepo;
@@ -41,7 +58,7 @@ namespace DLS_Web.Pages.Aktiviteter
                 // Ny aktivitet: forslag til tidspunkt, og lederen der opretter står for den
                 Aktivitet.Tidspunkt = DateTime.Today.AddDays(1).AddHours(10);
                 Aktivitet.MaksDeltagere = 10;
-                Aktivitet.LederIds = new List<int> { Bruger.Id(HttpContext.Session) };
+                Aktivitet.LederIds = new List<int> { (HttpContext.Session.GetInt32("BrugerId") ?? 0) };
             }
             else
             {
@@ -59,7 +76,10 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public IActionResult OnPost()
         {
-            Aktivitet.Navn = Aktivitet.Navn.Trim();
+            // Tomme felter kommer ind som null, så de laves om til ""
+            Aktivitet.Navn = (Aktivitet.Navn ?? "").Trim();
+            Aktivitet.Sted = (Aktivitet.Sted ?? "").Trim();
+            Aktivitet.Beskrivelse = (Aktivitet.Beskrivelse ?? "").Trim();
 
             if (Aktivitet.Navn == "")
             {

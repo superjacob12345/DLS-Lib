@@ -1,13 +1,30 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Tegnene
 {
     // Bruges både til at oprette (uden id) og rette (med id)
-    public class RedigerModel : LederSide
+    public class RedigerModel : PageModel
     {
+        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+            else if (rolle != "Leder")
+            {
+                TempData["Fejl"] = "Den side er kun for ledere";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+
         private TegnRepository _repo;
 
         [BindProperty]
@@ -39,7 +56,8 @@ namespace DLS_Web.Pages.Tegnene
 
         public IActionResult OnPost()
         {
-            Tegn.Navn = Tegn.Navn.Trim();
+            // Tomme felter kommer ind som null, så de laves om til ""
+            Tegn.Navn = (Tegn.Navn ?? "").Trim();
             if (Tegn.Navn == "")
             {
                 ModelState.AddModelError("", "Tegnet skal have et navn");

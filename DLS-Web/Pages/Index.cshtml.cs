@@ -1,6 +1,5 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -41,9 +40,9 @@ namespace DLS_Web.Pages
             AntalSpejdere = _spejderRepo.HentAlle().Count;
             AntalTilmeldinger = _tilmeldingRepo.HentAlle().Count;
 
-            if (Bruger.ErSpejder(HttpContext.Session))
+            if ((HttpContext.Session.GetString("Rolle") == "Spejder"))
             {
-                MineTilmeldinger = _tilmeldingRepo.HentForSpejder(Bruger.Id(HttpContext.Session)).Count;
+                MineTilmeldinger = _tilmeldingRepo.HentForSpejder((HttpContext.Session.GetInt32("BrugerId") ?? 0)).Count;
             }
         }
     }

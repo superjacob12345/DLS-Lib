@@ -1,13 +1,30 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Aktiviteter
 {
-    // Lederen ser hvem der deltager i en aktivitet
-    public class DeltagereModel : LederSide
+    // Lederen ser hvem der er tilmeldt en aktivitet
+    public class TilmeldteModel : PageModel
     {
+        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+            else if (rolle != "Leder")
+            {
+                TempData["Fejl"] = "Den side er kun for ledere";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+
         private AktivitetRepository _aktivitetRepo;
         private TilmeldingRepository _tilmeldingRepo;
         private SpejderRepository _spejderRepo;
@@ -16,7 +33,7 @@ namespace DLS_Web.Pages.Aktiviteter
         public Aktivitet Aktivitet { get; set; } = new Aktivitet();
         public List<Tilmelding> Tilmeldinger { get; set; } = new List<Tilmelding>();
 
-        public DeltagereModel(AktivitetRepository aktivitetRepo, TilmeldingRepository tilmeldingRepo,
+        public TilmeldteModel(AktivitetRepository aktivitetRepo, TilmeldingRepository tilmeldingRepo,
             SpejderRepository spejderRepo, TegnRepository tegnRepo)
         {
             _aktivitetRepo = aktivitetRepo;

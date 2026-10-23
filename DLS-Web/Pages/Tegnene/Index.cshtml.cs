@@ -1,13 +1,30 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 // Mappen hedder "Tegnene", fordi et namespace der hedder "Tegn" ville blive forvekslet med klassen Tegn
 namespace DLS_Web.Pages.Tegnene
 {
-    public class IndexModel : LederSide
+    public class IndexModel : PageModel
     {
+        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+            else if (rolle != "Leder")
+            {
+                TempData["Fejl"] = "Den side er kun for ledere";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+
         private TegnRepository _repo;
         private SpejderRepository _spejderRepo;
         private AktivitetRepository _aktivitetRepo;

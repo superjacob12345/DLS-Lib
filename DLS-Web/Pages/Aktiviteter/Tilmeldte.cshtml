@@ -1,7 +1,7 @@
 @page "{id:int}"
-@model DLS_Web.Pages.Aktiviteter.DeltagereModel
+@model DLS_Web.Pages.Aktiviteter.TilmeldteModel
 @{
-    ViewData["Title"] = "Deltagere";
+    ViewData["Title"] = "Tilmeldte";
     int antal = Model.Tilmeldinger.Count;
 }
 
@@ -10,11 +10,11 @@
 <div class="side-top">
     <div>
         <h1>@Model.Aktivitet.Navn</h1>
-        <p>@Visning.Kort(Model.Aktivitet.Tidspunkt) · 📍 @Model.Aktivitet.Sted</p>
+        <p>@Model.Aktivitet.Tidspunkt.ToString("ddd d. MMM 'kl.' HH:mm") · 📍 @Model.Aktivitet.Sted</p>
     </div>
     <div class="text-end">
         <div class="tal">@antal<span class="fs-5 text-secondary"> / @Model.Aktivitet.MaksDeltagere</span></div>
-        <div class="tal-tekst">deltagere</div>
+        <div class="tal-tekst">tilmeldte</div>
     </div>
 </div>
 
@@ -51,7 +51,7 @@ else
                             <td class="fw-bold">@s.Navn</td>
                             <td>@s.Alder år</td>
                             <td>@Model.TegnNavne(s)</td>
-                            <td>@Visning.Dato(t.Dato)</td>
+                            <td>@t.Dato.ToString("d. MMMM yyyy")</td>
                             <td>
                                 <div class="handlinger">
                                     <form method="post" asp-page-handler="Fjern" asp-route-id="@Model.Aktivitet.Id" asp-route-spejderId="@s.Id">

@@ -39,13 +39,13 @@
 {
     <article class="akt akt-tilmeldt">
         <div class="akt-tid">
-            <span class="akt-klokke">@Visning.Klokken(a.Tidspunkt)</span>
+            <span class="akt-klokke">@a.Tidspunkt.ToString("HH:mm")</span>
             <small>@a.Tidspunkt.ToString("dd/MM")</small>
         </div>
         <div>
             <h3>@a.Navn</h3>
             <div class="akt-meta">
-                <span>@Visning.Dag(a.Tidspunkt)</span>
+                <span>@a.Tidspunkt.ToString("dddd d. MMMM")</span>
                 <span>📍 @a.Sted</span>
             </div>
             @if (a.Beskrivelse != "")

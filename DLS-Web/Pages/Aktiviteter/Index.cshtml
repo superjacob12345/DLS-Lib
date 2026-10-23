@@ -9,7 +9,7 @@
         <h1>Ugens aktiviteter</h1>
         @if (Model.ErLeder)
         {
-            <p>Opret, ret og nedlæg aktiviteter, og se hvem der deltager.</p>
+            <p>Opret, ret og nedlæg aktiviteter, og se hvem der er tilmeldt.</p>
         }
         else
         {
@@ -39,7 +39,8 @@
 @foreach (var dag in Model.Aktiviteter.GroupBy(a => a.Tidspunkt.Date))
 {
     <section class="dag">
-        <h2 class="dag-titel">@Visning.Dag(dag.Key)</h2>
+        @{ string dagNavn = dag.Key.ToString("dddd d. MMMM"); }
+        <h2 class="dag-titel">@(dagNavn.Substring(0, 1).ToUpper() + dagNavn.Substring(1))</h2>
 
         @foreach (var a in dag)
         {
@@ -50,7 +51,7 @@
 
             <article class="akt @(tilmeldt ? "akt-tilmeldt" : "")">
                 <div class="akt-tid">
-                    <span class="akt-klokke">@Visning.Klokken(a.Tidspunkt)</span>
+                    <span class="akt-klokke">@a.Tidspunkt.ToString("HH:mm")</span>
                     <small>@a.Tidspunkt.ToString("dd/MM")</small>
                 </div>
 
@@ -95,7 +96,7 @@
                 <div class="akt-handling">
                     @if (Model.ErLeder)
                     {
-                        <a asp-page="Deltagere" asp-route-id="@a.Id" class="btn btn-primary btn-sm">Se deltagere (@antal)</a>
+                        <a asp-page="Tilmeldte" asp-route-id="@a.Id" class="btn btn-primary btn-sm">Se tilmeldte (@antal)</a>
                         <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-lys btn-sm">Ret</a>
                         <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
                             <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du nedlægge @a.Navn? Alle tilmeldinger slettes også.')">Nedlæg</button>

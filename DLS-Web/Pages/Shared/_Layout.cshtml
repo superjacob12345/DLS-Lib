@@ -1,6 +1,6 @@
 ﻿@{
-    string? rolle = Bruger.Rolle(Context.Session);
-    string navn = Bruger.Navn(Context.Session);
+    string? rolle = Context.Session.GetString("Rolle");
+    string navn = (Context.Session.GetString("Navn") ?? "");
 }
 @functions {
     // Markerer menupunktet for den side man står på
@@ -39,11 +39,11 @@
                         {
                             <li class="nav-item"><a class="nav-link @Aktiv("/Aktiviteter")" asp-page="/Aktiviteter/Index">Aktiviteter</a></li>
                         }
-                        @if (rolle == Bruger.Spejder)
+                        @if (rolle == "Spejder")
                         {
                             <li class="nav-item"><a class="nav-link @Aktiv("/MineAktiviteter")" asp-page="/MineAktiviteter">Mine aktiviteter</a></li>
                         }
-                        @if (rolle == Bruger.Leder)
+                        @if (rolle == "Leder")
                         {
                             <li class="nav-item"><a class="nav-link @Aktiv("/Spejdere")" asp-page="/Spejdere/Index">Spejdere</a></li>
                             <li class="nav-item"><a class="nav-link @Aktiv("/Ledere")" asp-page="/Ledere/Index">Ledere</a></li>

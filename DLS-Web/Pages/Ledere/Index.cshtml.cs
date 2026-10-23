@@ -1,12 +1,29 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Ledere
 {
-    public class IndexModel : LederSide
+    public class IndexModel : PageModel
     {
+        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+            else if (rolle != "Leder")
+            {
+                TempData["Fejl"] = "Den side er kun for ledere";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+
         private LederRepository _repo;
         private AktivitetRepository _aktivitetRepo;
 
@@ -25,7 +42,7 @@ namespace DLS_Web.Pages.Ledere
         public void OnGet()
         {
             Ledere = _repo.HentAlle().OrderBy(l => l.Navn).ToList();
-            MitId = Bruger.Id(HttpContext.Session);
+            MitId = (HttpContext.Session.GetInt32("BrugerId") ?? 0);
         }
 
         public IActionResult OnPostSlet(int id)
@@ -36,7 +53,7 @@ namespace DLS_Web.Pages.Ledere
                 return RedirectToPage();
             }
 
-            if (id == Bruger.Id(HttpContext.Session))
+            if (id == (HttpContext.Session.GetInt32("BrugerId") ?? 0))
             {
                 TempData["Fejl"] = "Du kan ikke slette dig selv";
                 return RedirectToPage();

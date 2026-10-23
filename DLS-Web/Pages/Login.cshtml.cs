@@ -1,6 +1,5 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -28,7 +27,7 @@ namespace DLS_Web.Pages
         public IActionResult OnGet()
         {
             // Er man allerede logget ind, er der ingen grund til at vise login
-            if (Bruger.Rolle(HttpContext.Session) != null)
+            if (HttpContext.Session.GetString("Rolle") != null)
             {
                 return RedirectToPage("/Aktiviteter/Index");
             }
@@ -39,9 +38,11 @@ namespace DLS_Web.Pages
         {
             foreach (Leder l in _lederRepo.HentAlle())
             {
-                if (l.BrugerNavn.ToLower() == BrugerNavn.Trim().ToLower() && l.Adgangskode == Adgangskode)
+                if (l.BrugerNavn.ToLower() == (BrugerNavn ?? "").Trim().ToLower() && l.Adgangskode == Adgangskode)
                 {
-                    Bruger.LogInd(HttpContext.Session, l.Id, l.Navn, Bruger.Leder);
+                    HttpContext.Session.SetInt32("BrugerId", l.Id);
+                    HttpContext.Session.SetString("Navn", l.Navn);
+                    HttpContext.Session.SetString("Rolle", "Leder");
                     TempData["Besked"] = "Velkommen, " + l.Navn;
                     return RedirectToPage("/Aktiviteter/Index");
                 }
@@ -49,9 +50,11 @@ namespace DLS_Web.Pages
 
             foreach (Spejder s in _spejderRepo.HentAlle())
             {
-                if (s.BrugerNavn.ToLower() == BrugerNavn.Trim().ToLower() && s.Adgangskode == Adgangskode)
+                if (s.BrugerNavn.ToLower() == (BrugerNavn ?? "").Trim().ToLower() && s.Adgangskode == Adgangskode)
                 {
-                    Bruger.LogInd(HttpContext.Session, s.Id, s.Navn, Bruger.Spejder);
+                    HttpContext.Session.SetInt32("BrugerId", s.Id);
+                    HttpContext.Session.SetString("Navn", s.Navn);
+                    HttpContext.Session.SetString("Rolle", "Spejder");
                     TempData["Besked"] = "Velkommen, " + s.Navn;
                     return RedirectToPage("/Aktiviteter/Index");
                 }

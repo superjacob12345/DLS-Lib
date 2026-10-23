@@ -1,4 +1,3 @@
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,7 +12,7 @@ namespace DLS_Web.Pages
 
         public IActionResult OnPost()
         {
-            Bruger.LogUd(HttpContext.Session);
+            HttpContext.Session.Clear();
             TempData["Besked"] = "Du er nu logget ud";
             return RedirectToPage("/Index");
         }

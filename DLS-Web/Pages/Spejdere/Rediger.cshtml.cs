@@ -1,13 +1,30 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Spejdere
 {
     // Bruges både til at oprette (uden id) og rette (med id)
-    public class RedigerModel : LederSide
+    public class RedigerModel : PageModel
     {
+        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+            else if (rolle != "Leder")
+            {
+                TempData["Fejl"] = "Den side er kun for ledere";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+
         private SpejderRepository _repo;
         private LederRepository _lederRepo;
         private TegnRepository _tegnRepo;
@@ -51,8 +68,10 @@ namespace DLS_Web.Pages.Spejdere
 
         public IActionResult OnPost()
         {
-            Spejder.Navn = Spejder.Navn.Trim();
-            Spejder.BrugerNavn = Spejder.BrugerNavn.Trim();
+            // Tomme felter kommer ind som null, så de laves om til ""
+            Spejder.Navn = (Spejder.Navn ?? "").Trim();
+            Spejder.BrugerNavn = (Spejder.BrugerNavn ?? "").Trim();
+            Spejder.Adgangskode = Spejder.Adgangskode ?? "";
 
             // Lader man adgangskoden stå tom ved rettelse, beholdes den gamle
             Spejder? gammel = _repo.HentEn(Spejder.Id);
@@ -69,9 +88,15 @@ namespace DLS_Web.Pages.Spejdere
             {
                 ModelState.AddModelError("", "Skriv et brugernavn");
             }
-            else if (Bruger.BrugerNavnOptaget(Spejder.BrugerNavn, _repo, _lederRepo, Spejder.Id, 0))
+            else
             {
-                ModelState.AddModelError("", "Brugernavnet \"" + Spejder.BrugerNavn + "\" er allerede taget");
+                // Brugernavnet må ikke bruges af en anden spejder eller en leder
+                bool optaget = _repo.HentAlle().Any(s => s.Id != Spejder.Id && s.BrugerNavn.ToLower() == Spejder.BrugerNavn.ToLower())
+                    || _lederRepo.HentAlle().Any(l => l.BrugerNavn.ToLower() == Spejder.BrugerNavn.ToLower());
+                if (optaget)
+                {
+                    ModelState.AddModelError("", "Brugernavnet \"" + Spejder.BrugerNavn + "\" er allerede taget");
+                }
             }
             if (Spejder.Adgangskode == "")
             {

@@ -1,14 +1,26 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
-using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Aktiviteter
 {
     // Både spejdere og ledere bruger denne side. Spejdere kan tilmelde/framelde,
     // ledere kan rette, slette og se deltagere.
-    public class IndexModel : BeskyttetSide
+    public class IndexModel : PageModel
     {
+        // Man skal være logget ind for at se siden. Kører før OnGet/OnPost.
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                TempData["Fejl"] = "Du skal logge ind først";
+                context.Result = RedirectToPage("/Login");
+            }
+        }
+
         private AktivitetRepository _aktivitetRepo;
         private TilmeldingRepository _tilmeldingRepo;
         private SpejderRepository _spejderRepo;
@@ -39,8 +51,8 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public void OnGet()
         {
-            ErLeder = Bruger.ErLeder(HttpContext.Session);
-            int brugerId = Bruger.Id(HttpContext.Session);
+            ErLeder = (HttpContext.Session.GetString("Rolle") == "Leder");
+            int brugerId = (HttpContext.Session.GetInt32("BrugerId") ?? 0);
             if (!ErLeder)
             {
                 MigSelv = _spejderRepo.HentEn(brugerId);
@@ -99,7 +111,7 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public IActionResult OnPostSlet(int id)
         {
-            if (!Bruger.ErLeder(HttpContext.Session))
+            if (!(HttpContext.Session.GetString("Rolle") == "Leder"))
             {
                 TempData["Fejl"] = "Kun ledere kan slette aktiviteter";
                 return RedirectToPage(new { Vis });
@@ -176,11 +188,11 @@ namespace DLS_Web.Pages.Aktiviteter
 
         private Spejder? HentIndloggetSpejder()
         {
-            if (!Bruger.ErSpejder(HttpContext.Session))
+            if (!(HttpContext.Session.GetString("Rolle") == "Spejder"))
             {
                 return null;
             }
-            return _spejderRepo.HentEn(Bruger.Id(HttpContext.Session));
+            return _spejderRepo.HentEn((HttpContext.Session.GetInt32("BrugerId") ?? 0));
         }
     }
 }
