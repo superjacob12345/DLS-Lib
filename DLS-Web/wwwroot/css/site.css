@@ -1,4 +1,4 @@
- ===== Farver og grundopsætning ===== 
+/* ===== Farver og grundopsætning ===== */
 :root {
   --pink-800: #8e1450;
   --pink-700: #b0185e;
@@ -46,7 +46,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   letter-spacing: -.01em;
 }
 
- ===== Knapper og formularer ===== 
+/* ===== Knapper og formularer ===== */
 .btn {
   font-weight: 700;
   border-radius: 999px;
@@ -139,7 +139,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-size: .85rem;
 }
 
- Afkrydsningsfelter vist som små "piller" 
+/* Afkrydsningsfelter vist som små "piller" */
 .valg-liste {
   display: flex;
   flex-wrap: wrap;
@@ -177,7 +177,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   box-shadow: 0 0 0 .22rem rgba(233, 75, 138, .3);
 }
 
- ===== Topbar ===== 
+/* ===== Topbar ===== */
 .topbar {
   background: #fff;
   border-bottom: 1px solid var(--kant);
@@ -262,14 +262,14 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   }
 }
 
- ===== Beskeder ===== 
+/* ===== Beskeder ===== */
 .besked {
   border-radius: .9rem;
   border: 0;
   font-weight: 600;
 }
 
- ===== Sidehoved på hver side ===== 
+/* ===== Sidehoved på hver side ===== */
 .side-top {
   display: flex;
   flex-wrap: wrap;
@@ -296,7 +296,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   text-decoration: none;
 }
 
- ===== Kort / paneler ===== 
+/* ===== Kort / paneler ===== */
 .panel {
   background: #fff;
   border: 1px solid var(--kant);
@@ -309,7 +309,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   max-width: 720px;
 }
 
- ===== Forside ===== 
+/* ===== Forside ===== */
 .hero {
   position: relative;
   overflow: hidden;
@@ -411,7 +411,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   padding: .3rem .5rem;
 }
 
- ===== Aktiviteter ===== 
+/* ===== Aktiviteter ===== */
 .dag {
   margin-bottom: 2rem;
 }
@@ -631,7 +631,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   margin-bottom: .5rem;
 }
 
- ===== Tabeller ===== 
+/* ===== Tabeller ===== */
 .tabel-panel {
   padding: 0;
   overflow: hidden;
@@ -670,7 +670,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   margin: 0;
 }
 
- ===== Login ===== 
+/* ===== Login ===== */
 .login-boks {
   max-width: 440px;
   margin: 2rem auto;
@@ -684,7 +684,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   border-radius: 1.1rem;
 }
 
- ===== Sidefod ===== 
+/* ===== Sidefod ===== */
 .sidefod {
   border-top: 1px solid var(--kant);
   background: #fff;
@@ -693,7 +693,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   padding: 1.1rem 0;
 }
 
- Skjul fejlboksen når der ingen fejl er 
+/* Skjul fejlboksen når der ingen fejl er */
 .validation-summary-valid {
   display: none;
 }
