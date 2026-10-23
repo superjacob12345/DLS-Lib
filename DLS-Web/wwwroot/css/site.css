@@ -1,5 +1,5 @@
-/* ===== Farver og grundopsætning ===== */
-/*:root {
+ ===== Farver og grundopsætning ===== 
+:root {
   --pink-800: #8e1450;
   --pink-700: #b0185e;
   --pink-600: #d6246e;
@@ -44,10 +44,10 @@ body {
 h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-weight: 800;
   letter-spacing: -.01em;
-}*/
+}
 
-/* ===== Knapper og formularer ===== */
-/*.btn {
+ ===== Knapper og formularer ===== 
+.btn {
   font-weight: 700;
   border-radius: 999px;
   padding-left: 1.1rem;
@@ -137,10 +137,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
 .form-tekst {
   color: var(--graa);
   font-size: .85rem;
-}*/
+}
 
-/* Afkrydsningsfelter vist som små "piller" */
-/*.valg-liste {
+ Afkrydsningsfelter vist som små "piller" 
+.valg-liste {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
@@ -175,10 +175,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .valg input:focus-visible + label {
   box-shadow: 0 0 0 .22rem rgba(233, 75, 138, .3);
-}*/
+}
 
-/* ===== Topbar ===== */
-/*.topbar {
+ ===== Topbar ===== 
+.topbar {
   background: #fff;
   border-bottom: 1px solid var(--kant);
   padding-top: .7rem;
@@ -260,17 +260,17 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   .topbar .navbar-nav {
     margin: .75rem 0;
   }
-}*/
+}
 
-/* ===== Beskeder ===== */
-/*.besked {
+ ===== Beskeder ===== 
+.besked {
   border-radius: .9rem;
   border: 0;
   font-weight: 600;
-}*/
+}
 
-/* ===== Sidehoved på hver side ===== */
-/*.side-top {
+ ===== Sidehoved på hver side ===== 
+.side-top {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -294,10 +294,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   margin-bottom: .75rem;
   font-weight: 700;
   text-decoration: none;
-}*/
+}
 
-/* ===== Kort / paneler ===== */
-/*.panel {
+ ===== Kort / paneler ===== 
+.panel {
   background: #fff;
   border: 1px solid var(--kant);
   border-radius: 1.1rem;
@@ -307,10 +307,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .panel-smal {
   max-width: 720px;
-}*/
+}
 
-/* ===== Forside ===== */
-/*.hero {
+ ===== Forside ===== 
+.hero {
   position: relative;
   overflow: hidden;
   border-radius: 1.5rem;
@@ -409,10 +409,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .demo-tabel td {
   padding: .3rem .5rem;
-}*/
+}
 
-/* ===== Aktiviteter ===== */
-/*.dag {
+ ===== Aktiviteter ===== 
+.dag {
   margin-bottom: 2rem;
 }
 
@@ -629,10 +629,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-size: 3rem;
   display: block;
   margin-bottom: .5rem;
-}*/
+}
 
-/* ===== Tabeller ===== */
-/*.tabel-panel {
+ ===== Tabeller ===== 
+.tabel-panel {
   padding: 0;
   overflow: hidden;
 }
@@ -668,10 +668,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .handlinger form {
   margin: 0;
-}*/
+}
 
-/* ===== Login ===== */
-/*.login-boks {
+ ===== Login ===== 
+.login-boks {
   max-width: 440px;
   margin: 2rem auto;
 }
@@ -682,23 +682,23 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-size: 1.8rem;
   margin: 0 auto 1rem;
   border-radius: 1.1rem;
-}*/
+}
 
-/* ===== Sidefod ===== */
-/*.sidefod {
+ ===== Sidefod ===== 
+.sidefod {
   border-top: 1px solid var(--kant);
   background: #fff;
   color: var(--graa);
   font-size: .9rem;
   padding: 1.1rem 0;
-}*/
+}
 
-/* Skjul fejlboksen når der ingen fejl er */
-/*.validation-summary-valid {
+ Skjul fejlboksen når der ingen fejl er 
+.validation-summary-valid {
   display: none;
 }
 
 .validation-summary-errors ul {
   margin: 0;
   padding-left: 1.1rem;
-}*/
+}
