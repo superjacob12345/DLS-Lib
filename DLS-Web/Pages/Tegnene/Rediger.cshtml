@@ -1,25 +1,24 @@
-@page "{id:int}"
+@page "{id:int?}"
 @model DLS_Web.Pages.Tegnene.RedigerModel
 @{
-    ViewData["Title"] = "Rediger tegn";
+    ViewData["Title"] = Model.ErNy ? "Nyt tegn" : "Ret tegn";
 }
 
-<h1>Rediger tegn</h1>
+<a asp-page="Index" class="tilbage">← Tilbage til tegn</a>
 
-<form method="post" class="col-md-6">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Tegn.Id" />
+<div class="panel panel-smal">
+    <h1 class="h2 mb-4">@(Model.ErNy ? "Nyt tegn" : "Ret " + Model.Tegn.Navn)</h1>
 
-    <div class="mb-3">
+    <form method="post">
+        <div asp-validation-summary="All" class="alert alert-danger besked"></div>
+        <input type="hidden" asp-for="Tegn.Id" />
+
         <label asp-for="Tegn.Navn" class="form-label">Navn</label>
-        <input asp-for="Tegn.Navn" class="form-control" />
-        <span asp-validation-for="Tegn.Navn" class="text-danger"></span>
-    </div>
+        <input asp-for="Tegn.Navn" class="form-control" placeholder="Fx Førstehjælp" required />
 
-    <button type="submit" class="btn btn-primary">Gem</button>
-    <a asp-page="Index" class="btn btn-link">Tilbage</a>
-</form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret tegn" : "Gem ændringer")</button>
+            <a asp-page="Index" class="btn btn-lys">Annuller</a>
+        </div>
+    </form>
+</div>

@@ -56,6 +56,10 @@ namespace DLS_Lib.Repository
                     a.Tidspunkt = aktivitet.Tidspunkt;
                     a.MaksDeltagere = aktivitet.MaksDeltagere;
                     a.MinAlder = aktivitet.MinAlder;
+                    a.Sted = aktivitet.Sted;
+                    a.Beskrivelse = aktivitet.Beskrivelse;
+                    a.LederIds = aktivitet.LederIds;
+                    a.KraevedeTegnIds = aktivitet.KraevedeTegnIds;
                     return;
                 }
             }

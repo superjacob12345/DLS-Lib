@@ -4,42 +4,59 @@
     ViewData["Title"] = "Ledere";
 }
 
-<h1>Ledere</h1>
+<div class="side-top">
+    <div>
+        <h1>Ledere</h1>
+        <p>Ledere kan oprette aktiviteter og se hvem der deltager.</p>
+    </div>
+    <a asp-page="Rediger" class="btn btn-primary">+ Ny leder</a>
+</div>
 
-<p>
-    <a asp-page="Opret" class="btn btn-primary">Opret ny leder</a>
-</p>
-
-@if (Model.Ledere.Count == 0)
-{
-    <p>Der er ingen ledere endnu.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Navn</th>
-                <th>Brugernavn</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var l in Model.Ledere)
-            {
+<div class="panel tabel-panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@l.Id</td>
-                    <td>@l.Navn</td>
-                    <td>@l.BrugerNavn</td>
-                    <td>
-                        <a asp-page="Rediger" asp-route-id="@l.Id" class="btn btn-sm btn-secondary">Rediger</a>
-                        <form method="post" asp-page-handler="Slet" asp-route-id="@l.Id" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Vil du slette @l.Navn?')">Slet</button>
-                        </form>
-                    </td>
+                    <th>Navn</th>
+                    <th>Brugernavn</th>
+                    <th>Står for</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var l in Model.Ledere)
+                {
+                    <tr>
+                        <td class="fw-bold">
+                            @l.Navn
+                            @if (l.Id == Model.MitId)
+                            {
+                                <span class="chip chip-ok ms-1">Dig</span>
+                            }
+                        </td>
+                        <td>@l.BrugerNavn</td>
+                        <td>
+                            <div class="chips mb-0">
+                                @foreach (var a in Model.HentAktiviteter(l))
+                                {
+                                    <span class="chip">@a.Navn</span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="handlinger">
+                                <a asp-page="Rediger" asp-route-id="@l.Id" class="btn btn-lys btn-sm">Ret</a>
+                                @if (l.Id != Model.MitId)
+                                {
+                                    <form method="post" asp-page-handler="Slet" asp-route-id="@l.Id">
+                                        <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du slette @l.Navn?')">Slet</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

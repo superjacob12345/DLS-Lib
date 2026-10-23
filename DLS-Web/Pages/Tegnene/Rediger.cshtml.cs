@@ -1,42 +1,65 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
+using DLS_Web.Hjaelpere;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Tegnene
 {
-    public class RedigerModel : PageModel
+    // Bruges både til at oprette (uden id) og rette (med id)
+    public class RedigerModel : LederSide
     {
         private TegnRepository _repo;
 
         [BindProperty]
         public Tegn Tegn { get; set; } = new Tegn();
 
+        public bool ErNy
+        {
+            get { return Tegn.Id == 0; }
+        }
+
         public RedigerModel(TegnRepository repo)
         {
             _repo = repo;
         }
 
-        public IActionResult OnGet(int id)
+        public IActionResult OnGet(int? id)
         {
-            Tegn? tegn = _repo.HentEn(id);
-            if (tegn == null)
+            if (id != null)
             {
-                return NotFound();
+                Tegn? tegn = _repo.HentEn(id.Value);
+                if (tegn == null)
+                {
+                    return NotFound();
+                }
+                Tegn = tegn;
             }
-
-            Tegn = tegn;
             return Page();
         }
 
         public IActionResult OnPost()
         {
+            Tegn.Navn = Tegn.Navn.Trim();
+            if (Tegn.Navn == "")
+            {
+                ModelState.AddModelError("", "Tegnet skal have et navn");
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _repo.Opdater(Tegn);
+            if (Tegn.Id == 0)
+            {
+                _repo.Opret(Tegn);
+                TempData["Besked"] = Tegn.Navn + " er oprettet";
+            }
+            else
+            {
+                _repo.Opdater(Tegn);
+                TempData["Besked"] = Tegn.Navn + " er gemt";
+            }
             return RedirectToPage("Index");
         }
     }

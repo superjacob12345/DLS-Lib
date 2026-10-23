@@ -4,46 +4,122 @@
     ViewData["Title"] = "Aktiviteter";
 }
 
-<h1>Aktiviteter</h1>
-
-<p>
-    <a asp-page="Opret" class="btn btn-primary">Opret ny aktivitet</a>
-</p>
+<div class="side-top">
+    <div>
+        <h1>Ugens aktiviteter</h1>
+        @if (Model.ErLeder)
+        {
+            <p>Opret, ret og nedlæg aktiviteter, og se hvem der deltager.</p>
+        }
+        else
+        {
+            <p>Tryk på "Tilmeld" for at være med. Du kan altid framelde dig igen.</p>
+        }
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <div class="filter">
+            <a asp-route-vis="alle" class="@(Model.Vis != "mine" ? "valgt" : "")">Alle</a>
+            <a asp-route-vis="mine" class="@(Model.Vis == "mine" ? "valgt" : "")">@(Model.ErLeder ? "Dem jeg står for" : "Dem jeg kan deltage i")</a>
+        </div>
+        @if (Model.ErLeder)
+        {
+            <a asp-page="Rediger" class="btn btn-primary">+ Ny aktivitet</a>
+        }
+    </div>
+</div>
 
 @if (Model.Aktiviteter.Count == 0)
 {
-    <p>Der er ingen aktiviteter endnu.</p>
+    <div class="panel tom">
+        <span class="tom-ikon">🏕️</span>
+        <p class="mb-0">Der er ingen aktiviteter at vise her.</p>
+    </div>
 }
-else
+
+@foreach (var dag in Model.Aktiviteter.GroupBy(a => a.Tidspunkt.Date))
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Navn</th>
-                <th>Tidspunkt</th>
-                <th>Maks deltagere</th>
-                <th>Min. alder</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var a in Model.Aktiviteter)
-            {
-                <tr>
-                    <td>@a.Id</td>
-                    <td>@a.Navn</td>
-                    <td>@a.Tidspunkt.ToString("dd-MM-yyyy HH:mm")</td>
-                    <td>@a.MaksDeltagere</td>
-                    <td>@a.MinAlder</td>
-                    <td>
-                        <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-sm btn-secondary">Rediger</a>
-                        <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Vil du slette @a.Navn?')">Slet</button>
+    <section class="dag">
+        <h2 class="dag-titel">@Visning.Dag(dag.Key)</h2>
+
+        @foreach (var a in dag)
+        {
+            int antal = Model.AntalTilmeldte(a);
+            int procent = a.MaksDeltagere > 0 ? Math.Min(100, antal * 100 / a.MaksDeltagere) : 100;
+            bool tilmeldt = Model.ErTilmeldt(a);
+            string grund = Model.Grund(a);
+
+            <article class="akt @(tilmeldt ? "akt-tilmeldt" : "")">
+                <div class="akt-tid">
+                    <span class="akt-klokke">@Visning.Klokken(a.Tidspunkt)</span>
+                    <small>@a.Tidspunkt.ToString("dd/MM")</small>
+                </div>
+
+                <div>
+                    <h3>@a.Navn</h3>
+                    <div class="akt-meta">
+                        <span>📍 @a.Sted</span>
+                        <span>⚜ @Model.LederNavne(a)</span>
+                    </div>
+                    @if (a.Beskrivelse != "")
+                    {
+                        <p>@a.Beskrivelse</p>
+                    }
+
+                    <div class="chips">
+                        <span class="chip">@(a.MinAlder > 0 ? "Fra " + a.MinAlder + " år" : "Alle aldre")</span>
+                        @foreach (var t in Model.KraevedeTegn(a))
+                        {
+                            if (Model.MigSelv == null)
+                            {
+                                <span class="chip chip-tegn">Kræver: @t.Navn</span>
+                            }
+                            else if (Model.MigSelv.TegnIds.Contains(t.Id))
+                            {
+                                <span class="chip chip-ok">✓ @t.Navn</span>
+                            }
+                            else
+                            {
+                                <span class="chip chip-mangler">Mangler: @t.Navn</span>
+                            }
+                        }
+                    </div>
+
+                    <div class="pladser">
+                        <div class="progress" role="progressbar" aria-label="Pladser taget" aria-valuenow="@antal" aria-valuemin="0" aria-valuemax="@a.MaksDeltagere">
+                            <div class="progress-bar @(antal >= a.MaksDeltagere ? "fuld" : "")" style="width: @procent%"></div>
+                        </div>
+                        <small>@antal af @a.MaksDeltagere pladser taget</small>
+                    </div>
+                </div>
+
+                <div class="akt-handling">
+                    @if (Model.ErLeder)
+                    {
+                        <a asp-page="Deltagere" asp-route-id="@a.Id" class="btn btn-primary btn-sm">Se deltagere (@antal)</a>
+                        <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-lys btn-sm">Ret</a>
+                        <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
+                            <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du nedlægge @a.Navn? Alle tilmeldinger slettes også.')">Nedlæg</button>
                         </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    }
+                    else if (tilmeldt)
+                    {
+                        <span class="status status-tilmeldt">✓ Du er tilmeldt</span>
+                        <form method="post" asp-page-handler="Frameld" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
+                            <button type="submit" class="btn btn-lys btn-sm">Frameld</button>
+                        </form>
+                    }
+                    else if (grund == "")
+                    {
+                        <form method="post" asp-page-handler="Tilmeld" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
+                            <button type="submit" class="btn btn-skov">Tilmeld</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="status status-nej">@grund</span>
+                    }
+                </div>
+            </article>
+        }
+    </section>
 }
