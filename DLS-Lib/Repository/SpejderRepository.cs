@@ -61,6 +61,7 @@ namespace DLS_Lib.Repository
                     s.BrugerNavn = spejder.BrugerNavn;
                     s.Adgangskode = spejder.Adgangskode;
                     s.Foedselsdato = spejder.Foedselsdato;
+                    s.TegnIds = spejder.TegnIds;
                     return;
                 }
             }

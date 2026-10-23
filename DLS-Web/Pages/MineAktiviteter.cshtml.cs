@@ -1,0 +1,72 @@
+using DLS_Lib.Repository;
+using DLS_Lib.UserStories;
+using DLS_Web.Hjaelpere;
+using Microsoft.AspNetCore.Mvc;
+
+namespace DLS_Web.Pages
+{
+    // Spejderen ser de aktiviteter spejderen er tilmeldt
+    public class MineAktiviteterModel : SpejderSide
+    {
+        private AktivitetRepository _aktivitetRepo;
+        private TilmeldingRepository _tilmeldingRepo;
+        private SpejderRepository _spejderRepo;
+        private TegnRepository _tegnRepo;
+
+        public List<Aktivitet> Aktiviteter { get; set; } = new List<Aktivitet>();
+        public List<Tegn> MineTegn { get; set; } = new List<Tegn>();
+        public Spejder MigSelv { get; set; } = new Spejder();
+
+        public MineAktiviteterModel(AktivitetRepository aktivitetRepo, TilmeldingRepository tilmeldingRepo,
+            SpejderRepository spejderRepo, TegnRepository tegnRepo)
+        {
+            _aktivitetRepo = aktivitetRepo;
+            _tilmeldingRepo = tilmeldingRepo;
+            _spejderRepo = spejderRepo;
+            _tegnRepo = tegnRepo;
+        }
+
+        public IActionResult OnGet()
+        {
+            Spejder? spejder = _spejderRepo.HentEn(Bruger.Id(HttpContext.Session));
+            if (spejder == null)
+            {
+                // Spejderen er blevet slettet, mens spejderen var logget ind
+                Bruger.LogUd(HttpContext.Session);
+                return RedirectToPage("/Login");
+            }
+            MigSelv = spejder;
+
+            foreach (Tilmelding t in _tilmeldingRepo.HentForSpejder(spejder.Id))
+            {
+                Aktivitet? a = _aktivitetRepo.HentEn(t.AktivitetId);
+                if (a != null)
+                {
+                    Aktiviteter.Add(a);
+                }
+            }
+            Aktiviteter = Aktiviteter.OrderBy(a => a.Tidspunkt).ToList();
+
+            foreach (int id in spejder.TegnIds)
+            {
+                Tegn? tegn = _tegnRepo.HentEn(id);
+                if (tegn != null)
+                {
+                    MineTegn.Add(tegn);
+                }
+            }
+            return Page();
+        }
+
+        public IActionResult OnPostFrameld(int id)
+        {
+            Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
+            _tilmeldingRepo.Frameld(Bruger.Id(HttpContext.Session), id);
+            if (aktivitet != null)
+            {
+                TempData["Besked"] = "Du er frameldt " + aktivitet.Navn;
+            }
+            return RedirectToPage();
+        }
+    }
+}

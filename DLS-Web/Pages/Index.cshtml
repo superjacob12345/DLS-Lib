@@ -1,10 +1,99 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Forside";
+    string? rolle = Bruger.Rolle(HttpContext.Session);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="hero mb-4">
+    <span class="hero-maerke">Landslejr · Hedeland ved Roskilde</span>
+    @if (rolle == null)
+    {
+        <h1>En uge fuld af eventyr</h1>
+        <p>Hvert 5. år samles De Lyserøde Spejdere fra hele landet. Find ugens aktiviteter og tilmeld dig dem, du har lyst til.</p>
+        <a asp-page="/Login" class="btn btn-light btn-lg">Log ind og kom i gang</a>
+    }
+    else
+    {
+        <h1>Hej @Bruger.Navn(HttpContext.Session).Split(' ')[0]!</h1>
+        @if (rolle == Bruger.Spejder)
+        {
+            <p>Du er tilmeldt @Model.MineTilmeldinger @(Model.MineTilmeldinger == 1 ? "aktivitet" : "aktiviteter"). Se hvad der ellers sker på lejren.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-page="/Aktiviteter/Index" class="btn btn-light btn-lg">Find aktiviteter</a>
+                <a asp-page="/MineAktiviteter" class="btn btn-outline-light btn-lg">Mine aktiviteter</a>
+            </div>
+        }
+        else
+        {
+            <p>Opret og ret ugens aktiviteter, og se hvem der deltager.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-page="/Aktiviteter/Index" class="btn btn-light btn-lg">Gå til aktiviteter</a>
+                <a asp-page="/Aktiviteter/Rediger" class="btn btn-outline-light btn-lg">+ Ny aktivitet</a>
+            </div>
+        }
+    }
+    <div class="hero-telte" aria-hidden="true">⛺🔥⛺</div>
+</section>
+
+@if (rolle == Bruger.Leder)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="panel"><div class="tal">@Model.AntalAktiviteter</div><div class="tal-tekst">aktiviteter</div></div></div>
+        <div class="col-md-4"><div class="panel"><div class="tal">@Model.AntalSpejdere</div><div class="tal-tekst">spejdere</div></div></div>
+        <div class="col-md-4"><div class="panel"><div class="tal">@Model.AntalTilmeldinger</div><div class="tal-tekst">tilmeldinger</div></div></div>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="panel h-100 fakta">
+                <div class="fakta-ikon">🔥</div>
+                <div><h3>Aktiviteter hele ugen</h3><p>Mad over bål, ridning, kanoture, natløb og meget mere.</p></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel h-100 fakta">
+                <div class="fakta-ikon">✋</div>
+                <div><h3>Tilmeld dig selv</h3><p>Se med det samme om der er plads, og om du har den rigtige alder og de rigtige tegn.</p></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel h-100 fakta">
+                <div class="fakta-ikon">⚜</div>
+                <div><h3>Lederne styrer</h3><p>Lederne opretter aktiviteterne og kan altid se, hvem der deltager.</p></div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="panel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 m-0">Det sker snart</h2>
+        @if (rolle != null)
+        {
+            <a asp-page="/Aktiviteter/Index">Se hele programmet →</a>
+        }
+    </div>
+
+    @if (Model.Kommende.Count == 0)
+    {
+        <p class="text-secondary m-0">Der er ingen kommende aktiviteter.</p>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var a in Model.Kommende)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <div class="akt-tid text-start p-3 h-100">
+                        <small>@Visning.Kort(a.Tidspunkt)</small>
+                        <div class="fw-bold mt-1">@a.Navn</div>
+                        <small>📍 @a.Sted</small>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

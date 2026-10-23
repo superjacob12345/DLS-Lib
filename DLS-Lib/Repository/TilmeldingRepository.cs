@@ -56,9 +56,9 @@ namespace DLS_Lib.Repository
             return false;
         }
 
-        // Tjekker reglerne og tilmelder spejderen.
-        // Returnerer en fejlbesked, eller "" hvis det gik godt.
-        public string Tilmeld(Spejder spejder, Aktivitet aktivitet)
+        // Tjekker reglerne for om spejderen må tilmelde sig.
+        // Returnerer grunden til at det ikke kan lade sig gøre, eller "" hvis det er ok.
+        public string KanTilmelde(Spejder spejder, Aktivitet aktivitet)
         {
             if (ErTilmeldt(spejder.Id, aktivitet.Id))
             {
@@ -75,6 +75,32 @@ namespace DLS_Lib.Repository
                 return "Du er for ung til denne aktivitet";
             }
 
+            foreach (int tegnId in aktivitet.KraevedeTegnIds)
+            {
+                if (!spejder.TegnIds.Contains(tegnId))
+                {
+                    return "Du mangler et tegn for at deltage";
+                }
+            }
+
+            if (aktivitet.Tidspunkt < DateTime.Now)
+            {
+                return "Aktiviteten er allerede begyndt";
+            }
+
+            return "";
+        }
+
+        // Tilmelder spejderen, hvis reglerne er overholdt.
+        // Returnerer en fejlbesked, eller "" hvis det gik godt.
+        public string Tilmeld(Spejder spejder, Aktivitet aktivitet)
+        {
+            string fejl = KanTilmelde(spejder, aktivitet);
+            if (fejl != "")
+            {
+                return fejl;
+            }
+
             DateOnly idag = DateOnly.FromDateTime(DateTime.Today);
             _tilmeldinger.Add(new Tilmelding(spejder.Id, aktivitet.Id, idag));
             return "";
@@ -89,6 +115,31 @@ namespace DLS_Lib.Repository
                 {
                     _tilmeldinger.Remove(t);
                     return; // stop løkken, ellers giver Remove en fejl
+                }
+            }
+        }
+
+        // Fjerner alle tilmeldinger til en aktivitet (bruges når aktiviteten slettes)
+        public void SletForAktivitet(int aktivitetId)
+        {
+            // Baglæns, så Remove ikke springer nogen over
+            for (int i = _tilmeldinger.Count - 1; i >= 0; i--)
+            {
+                if (_tilmeldinger[i].AktivitetId == aktivitetId)
+                {
+                    _tilmeldinger.RemoveAt(i);
+                }
+            }
+        }
+
+        // Fjerner alle tilmeldinger for en spejder (bruges når spejderen slettes)
+        public void SletForSpejder(int spejderId)
+        {
+            for (int i = _tilmeldinger.Count - 1; i >= 0; i--)
+            {
+                if (_tilmeldinger[i].SpejderId == spejderId)
+                {
+                    _tilmeldinger.RemoveAt(i);
                 }
             }
         }

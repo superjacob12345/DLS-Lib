@@ -1,35 +1,43 @@
-@page "{id:int}"
+@page "{id:int?}"
 @model DLS_Web.Pages.Ledere.RedigerModel
 @{
-    ViewData["Title"] = "Rediger leder";
+    ViewData["Title"] = Model.ErNy ? "Ny leder" : "Ret leder";
 }
 
-<h1>Rediger leder</h1>
+<a asp-page="Index" class="tilbage">← Tilbage til ledere</a>
 
-<form method="post" class="col-md-6">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Leder.Id" />
+<div class="panel panel-smal">
+    <h1 class="h2 mb-4">@(Model.ErNy ? "Ny leder" : "Ret " + Model.Leder.Navn)</h1>
 
-    <div class="mb-3">
-        <label asp-for="Leder.Navn" class="form-label">Navn</label>
-        <input asp-for="Leder.Navn" class="form-control" />
-        <span asp-validation-for="Leder.Navn" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Leder.BrugerNavn" class="form-label">Brugernavn</label>
-        <input asp-for="Leder.BrugerNavn" class="form-control" />
-        <span asp-validation-for="Leder.BrugerNavn" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Leder.Adgangskode" class="form-label">Adgangskode</label>
-        <input asp-for="Leder.Adgangskode" type="password" value="@Model.Leder.Adgangskode" class="form-control" />
-        <span asp-validation-for="Leder.Adgangskode" class="text-danger"></span>
-    </div>
+    <form method="post">
+        <div asp-validation-summary="All" class="alert alert-danger besked"></div>
+        <input type="hidden" asp-for="Leder.Id" />
 
-    <button type="submit" class="btn btn-primary">Gem</button>
-    <a asp-page="Index" class="btn btn-link">Tilbage</a>
-</form>
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="Leder.Navn" class="form-label">Navn</label>
+                <input asp-for="Leder.Navn" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Leder.BrugerNavn" class="form-label">Brugernavn</label>
+                <input asp-for="Leder.BrugerNavn" class="form-control" autocomplete="off" required />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Leder.Adgangskode" class="form-label">Adgangskode</label>
+                @if (Model.ErNy)
+                {
+                    <input asp-for="Leder.Adgangskode" type="password" class="form-control" autocomplete="new-password" required />
+                }
+                else
+                {
+                    <input asp-for="Leder.Adgangskode" type="password" class="form-control" autocomplete="new-password" placeholder="Lad stå tom for at beholde" />
+                }
+            </div>
+        </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret leder" : "Gem ændringer")</button>
+            <a asp-page="Index" class="btn btn-lys">Annuller</a>
+        </div>
+    </form>
+</div>

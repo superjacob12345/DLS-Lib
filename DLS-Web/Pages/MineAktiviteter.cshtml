@@ -1,0 +1,63 @@
+@page
+@model DLS_Web.Pages.MineAktiviteterModel
+@{
+    ViewData["Title"] = "Mine aktiviteter";
+}
+
+<div class="side-top">
+    <div>
+        <h1>Mine aktiviteter</h1>
+        <p>@Model.MigSelv.Navn · @Model.MigSelv.Alder år</p>
+    </div>
+    <a asp-page="/Aktiviteter/Index" class="btn btn-primary">Find flere aktiviteter</a>
+</div>
+
+<div class="panel mb-4">
+    <h2 class="h6 mb-2">Mine tegn</h2>
+    <div class="chips mb-0">
+        @if (Model.MineTegn.Count == 0)
+        {
+            <span class="text-secondary">Du har ikke taget nogen tegn endnu.</span>
+        }
+        @foreach (var t in Model.MineTegn)
+        {
+            <span class="chip chip-tegn">⚜ @t.Navn</span>
+        }
+    </div>
+</div>
+
+@if (Model.Aktiviteter.Count == 0)
+{
+    <div class="panel tom">
+        <span class="tom-ikon">🎒</span>
+        <p>Du er ikke tilmeldt nogen aktiviteter endnu.</p>
+        <a asp-page="/Aktiviteter/Index" class="btn btn-primary">Se ugens aktiviteter</a>
+    </div>
+}
+
+@foreach (var a in Model.Aktiviteter)
+{
+    <article class="akt akt-tilmeldt">
+        <div class="akt-tid">
+            <span class="akt-klokke">@Visning.Klokken(a.Tidspunkt)</span>
+            <small>@a.Tidspunkt.ToString("dd/MM")</small>
+        </div>
+        <div>
+            <h3>@a.Navn</h3>
+            <div class="akt-meta">
+                <span>@Visning.Dag(a.Tidspunkt)</span>
+                <span>📍 @a.Sted</span>
+            </div>
+            @if (a.Beskrivelse != "")
+            {
+                <p class="mb-0">@a.Beskrivelse</p>
+            }
+        </div>
+        <div class="akt-handling">
+            <span class="status status-tilmeldt">✓ Tilmeldt</span>
+            <form method="post" asp-page-handler="Frameld" asp-route-id="@a.Id">
+                <button type="submit" class="btn btn-lys btn-sm" onclick="return confirm('Vil du framelde dig @a.Navn?')">Frameld</button>
+            </form>
+        </div>
+    </article>
+}
