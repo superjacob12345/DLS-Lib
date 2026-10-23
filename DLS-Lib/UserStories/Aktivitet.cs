@@ -11,6 +11,10 @@ namespace DLS_Lib.UserStories
         private DateTime _tidspunkt;
         private int _maksDeltagere;
         private int _minAlder;
+        private string _sted = "";
+        private string _beskrivelse = "";
+        private List<int> _lederIds = new List<int>();
+        private List<int> _kraevedeTegnIds = new List<int>();
 
         public Aktivitet() { }
 
@@ -50,6 +54,32 @@ namespace DLS_Lib.UserStories
         {
             get { return _minAlder; }
             set { _minAlder = value; }
+        }
+
+        public string Sted
+        {
+            get { return _sted; }
+            set { _sted = value; }
+        }
+
+        public string Beskrivelse
+        {
+            get { return _beskrivelse; }
+            set { _beskrivelse = value; }
+        }
+
+        // De ledere der varetager aktiviteten
+        public List<int> LederIds
+        {
+            get { return _lederIds; }
+            set { _lederIds = value; }
+        }
+
+        // De tegn en spejder skal have for at måtte deltage
+        public List<int> KraevedeTegnIds
+        {
+            get { return _kraevedeTegnIds; }
+            set { _kraevedeTegnIds = value; }
         }
 
         public override string ToString()

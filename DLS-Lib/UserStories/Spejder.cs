@@ -11,6 +11,7 @@ namespace DLS_Lib.UserStories
         private string _brugerNavn = "";
         private string _adgangskode = "";
         private DateOnly _foedselsdato;
+        private List<int> _tegnIds = new List<int>();
 
         public Spejder() { }
 
@@ -47,6 +48,13 @@ namespace DLS_Lib.UserStories
         {
             get { return _foedselsdato; }
             set { _foedselsdato = value; }
+        }
+
+        // De tegn (færdigheder) spejderen har taget
+        public List<int> TegnIds
+        {
+            get { return _tegnIds; }
+            set { _tegnIds = value; }
         }
 
         // Alder regnes ud fra fødselsdatoen, så den altid passer

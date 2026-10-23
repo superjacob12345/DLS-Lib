@@ -1,0 +1,56 @@
+@page
+@model DLS_Web.Pages.Tegnene.IndexModel
+@{
+    ViewData["Title"] = "Tegn";
+}
+
+<div class="side-top">
+    <div>
+        <h1>Tegn</h1>
+        <p>Færdigheder spejderne kan have. Nogle aktiviteter kræver bestemte tegn.</p>
+    </div>
+    <a asp-page="Rediger" class="btn btn-primary">+ Nyt tegn</a>
+</div>
+
+@if (Model.Tegn.Count == 0)
+{
+    <div class="panel tom">
+        <span class="tom-ikon">⚜</span>
+        <p class="mb-0">Der er ingen tegn endnu.</p>
+    </div>
+}
+else
+{
+    <div class="panel tabel-panel">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tegn</th>
+                        <th>Spejdere med tegnet</th>
+                        <th>Aktiviteter der kræver det</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.Tegn)
+                    {
+                        <tr>
+                            <td><span class="chip chip-tegn">⚜ @t.Navn</span></td>
+                            <td>@Model.AntalSpejdere(t)</td>
+                            <td>@Model.AntalAktiviteter(t)</td>
+                            <td>
+                                <div class="handlinger">
+                                    <a asp-page="Rediger" asp-route-id="@t.Id" class="btn btn-lys btn-sm">Ret</a>
+                                    <form method="post" asp-page-handler="Slet" asp-route-id="@t.Id">
+                                        <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du slette tegnet @t.Navn?')">Slet</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

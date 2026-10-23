@@ -1,0 +1,24 @@
+@page "{id:int?}"
+@model DLS_Web.Pages.Tegnene.RedigerModel
+@{
+    ViewData["Title"] = Model.ErNy ? "Nyt tegn" : "Ret tegn";
+}
+
+<a asp-page="Index" class="tilbage">← Tilbage til tegn</a>
+
+<div class="panel panel-smal">
+    <h1 class="h2 mb-4">@(Model.ErNy ? "Nyt tegn" : "Ret " + Model.Tegn.Navn)</h1>
+
+    <form method="post">
+        <div asp-validation-summary="All" class="alert alert-danger besked"></div>
+        <input type="hidden" asp-for="Tegn.Id" />
+
+        <label asp-for="Tegn.Navn" class="form-label">Navn</label>
+        <input asp-for="Tegn.Navn" class="form-control" placeholder="Fx Førstehjælp" required />
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret tegn" : "Gem ændringer")</button>
+            <a asp-page="Index" class="btn btn-lys">Annuller</a>
+        </div>
+    </form>
+</div>

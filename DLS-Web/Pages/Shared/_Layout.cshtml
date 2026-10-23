@@ -1,45 +1,92 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    string? rolle = Bruger.Rolle(Context.Session);
+    string navn = Bruger.Navn(Context.Session);
+}
+@functions {
+    // Markerer menupunktet for den side man står på
+    string Aktiv(string side)
+    {
+        string nuvaerende = ViewContext.RouteData.Values["page"] as string ?? "";
+        return nuvaerende.StartsWith(side) ? "active" : "";
+    }
+}
+<!DOCTYPE html>
+<html lang="da">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DLS_Web</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - De Lyserøde Spejdere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/DLS_Web.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg topbar">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">DLS_Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand brand" asp-page="/Index">
+                    <span class="brand-ikon">⚜</span>
+                    <span>De Lyserøde Spejdere<small>Landslejr Hedeland</small></span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+                        aria-controls="menu" aria-expanded="false" aria-label="Vis menu">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="navbar-nav me-auto">
+                        @if (rolle != null)
+                        {
+                            <li class="nav-item"><a class="nav-link @Aktiv("/Aktiviteter")" asp-page="/Aktiviteter/Index">Aktiviteter</a></li>
+                        }
+                        @if (rolle == Bruger.Spejder)
+                        {
+                            <li class="nav-item"><a class="nav-link @Aktiv("/MineAktiviteter")" asp-page="/MineAktiviteter">Mine aktiviteter</a></li>
+                        }
+                        @if (rolle == Bruger.Leder)
+                        {
+                            <li class="nav-item"><a class="nav-link @Aktiv("/Spejdere")" asp-page="/Spejdere/Index">Spejdere</a></li>
+                            <li class="nav-item"><a class="nav-link @Aktiv("/Ledere")" asp-page="/Ledere/Index">Ledere</a></li>
+                            <li class="nav-item"><a class="nav-link @Aktiv("/Tegnene")" asp-page="/Tegnene/Index">Tegn</a></li>
+                        }
                     </ul>
+                    @if (rolle == null)
+                    {
+                        <a class="btn btn-primary" asp-page="/Login">Log ind</a>
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="bruger-chip">
+                                <span class="bruger-avatar">@navn.Substring(0, 1)</span>
+                                <span>@navn <small>@rolle</small></span>
+                            </span>
+                            <form method="post" asp-page="/Logout">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">Log ud</button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - DLS_Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <main class="container py-4 flex-grow-1">
+        @if (TempData["Besked"] is string besked)
+        {
+            <div class="alert alert-success besked" role="status">✓ @besked</div>
+        }
+        @if (TempData["Fejl"] is string fejl)
+        {
+            <div class="alert alert-danger besked" role="alert">@fejl</div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="sidefod">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>⚜ De Lyserøde Spejdere · Landslejr i Hedeland ved Roskilde</span>
+            <span>&copy; 2026</span>
         </div>
     </footer>
 

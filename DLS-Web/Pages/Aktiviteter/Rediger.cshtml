@@ -1,0 +1,75 @@
+@page "{id:int?}"
+@model DLS_Web.Pages.Aktiviteter.RedigerModel
+@{
+    ViewData["Title"] = Model.ErNy ? "Ny aktivitet" : "Ret aktivitet";
+}
+
+<a asp-page="Index" class="tilbage">← Tilbage til aktiviteter</a>
+
+<div class="panel panel-smal">
+    <h1 class="h2 mb-4">@(Model.ErNy ? "Ny aktivitet" : "Ret " + Model.Aktivitet.Navn)</h1>
+
+    <form method="post">
+        <div asp-validation-summary="All" class="alert alert-danger besked"></div>
+        <input type="hidden" asp-for="Aktivitet.Id" />
+
+        <div class="row g-3">
+            <div class="col-md-7">
+                <label asp-for="Aktivitet.Navn" class="form-label">Navn</label>
+                <input asp-for="Aktivitet.Navn" class="form-control" placeholder="Fx Mad over bål" required />
+            </div>
+            <div class="col-md-5">
+                <label asp-for="Aktivitet.Sted" class="form-label">Sted</label>
+                <input asp-for="Aktivitet.Sted" class="form-control" placeholder="Fx Bålpladsen" />
+            </div>
+            <div class="col-12">
+                <label asp-for="Aktivitet.Beskrivelse" class="form-label">Beskrivelse</label>
+                <textarea asp-for="Aktivitet.Beskrivelse" class="form-control" rows="3" placeholder="Hvad skal der ske?"></textarea>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Aktivitet.Tidspunkt" class="form-label">Tidspunkt</label>
+                <input asp-for="Aktivitet.Tidspunkt" class="form-control" required />
+            </div>
+            <div class="col-6 col-md-3">
+                <label asp-for="Aktivitet.MaksDeltagere" class="form-label">Maks deltagere</label>
+                <input asp-for="Aktivitet.MaksDeltagere" class="form-control" min="1" required />
+            </div>
+            <div class="col-6 col-md-3">
+                <label asp-for="Aktivitet.MinAlder" class="form-label">Min. alder</label>
+                <input asp-for="Aktivitet.MinAlder" class="form-control" min="0" required />
+            </div>
+
+            <div class="col-12">
+                <span class="form-label d-block">Ledere der står for aktiviteten</span>
+                <div class="valg-liste">
+                    @foreach (var l in Model.AlleLedere)
+                    {
+                        <div class="valg">
+                            <input type="checkbox" name="Aktivitet.LederIds" value="@l.Id" id="leder-@l.Id" checked="@Model.Aktivitet.LederIds.Contains(l.Id)" />
+                            <label for="leder-@l.Id">@l.Navn</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-12">
+                <span class="form-label d-block">Krævede tegn</span>
+                <div class="form-tekst mb-2">Kun spejdere med alle de valgte tegn kan tilmelde sig. Vælg ingen, hvis alle må være med.</div>
+                <div class="valg-liste">
+                    @foreach (var t in Model.AlleTegn)
+                    {
+                        <div class="valg">
+                            <input type="checkbox" name="Aktivitet.KraevedeTegnIds" value="@t.Id" id="tegn-@t.Id" checked="@Model.Aktivitet.KraevedeTegnIds.Contains(t.Id)" />
+                            <label for="tegn-@t.Id">@t.Navn</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret aktivitet" : "Gem ændringer")</button>
+            <a asp-page="Index" class="btn btn-lys">Annuller</a>
+        </div>
+    </form>
+</div>
