@@ -71,7 +71,7 @@ if (lederRepo.HentAlle().Count == 0)
     int dageTilMandag = ((int)DayOfWeek.Monday - (int)DateTime.Today.DayOfWeek + 7) % 7;
     if (dageTilMandag == 0)
     {
-        dageTilMandag = 7;
+        dageTilMandag = 6;
     }
     DateTime mandag = DateTime.Today.AddDays(dageTilMandag);
 
