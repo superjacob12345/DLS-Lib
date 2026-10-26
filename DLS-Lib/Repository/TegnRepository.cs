@@ -7,7 +7,6 @@ namespace DLS_Lib.Repository
 {
     public class TegnRepository
     {
-        private static int nextID = 1;
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
         // CREATE
@@ -17,12 +16,14 @@ namespace DLS_Lib.Repository
 
             var command = new SqlCommand(
                 @"INSERT INTO Tegn (Navn)
+                  OUTPUT INSERTED.Id
                   VALUES (@navn)",
                 db.forbind);
 
             command.Parameters.AddWithValue("@navn", tegn.Navn);
 
-            command.ExecuteNonQuery();
+            // Databasen giver tegnet et Id
+            tegn.Id = (int)command.ExecuteScalar();
             db.LukForbindelse();
         }
 
@@ -34,7 +35,7 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Tegn",
+                "SELECT Id, Navn FROM Tegn",
                 db.forbind);
 
             var reader = command.ExecuteReader();
@@ -62,7 +63,7 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Tegn WHERE Id = @id",
+                "SELECT Id, Navn FROM Tegn WHERE Id = @id",
                 db.forbind);
 
             command.Parameters.AddWithValue("@id", id);

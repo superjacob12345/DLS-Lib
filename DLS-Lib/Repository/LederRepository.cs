@@ -17,6 +17,7 @@ namespace DLS_Lib.Repository
 
             var command = new SqlCommand(
                 @"INSERT INTO Leder (Navn, BrugerNavn, Adgangskode)
+                  OUTPUT INSERTED.Id
                   VALUES (@navn, @brugerNavn, @adgangskode)",
                 db.forbind);
 
@@ -24,7 +25,8 @@ namespace DLS_Lib.Repository
             command.Parameters.AddWithValue("@brugerNavn", leder.BrugerNavn);
             command.Parameters.AddWithValue("@adgangskode", leder.Adgangskode);
 
-            command.ExecuteNonQuery();
+            // Databasen giver lederen et Id
+            leder.Id = (int)command.ExecuteScalar();
             db.LukForbindelse();
         }
 
@@ -36,7 +38,7 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Leder",
+                "SELECT Id, Navn, BrugerNavn, Adgangskode FROM Leder",
                 db.forbind);
 
             var reader = command.ExecuteReader();
@@ -66,7 +68,7 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Leder WHERE Id = @id",
+                "SELECT Id, Navn, BrugerNavn, Adgangskode FROM Leder WHERE Id = @id",
                 db.forbind);
 
             command.Parameters.AddWithValue("@id", id);

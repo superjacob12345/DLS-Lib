@@ -17,6 +17,7 @@ namespace DLS_Lib.Repository
             var command = new SqlCommand(
                 @"INSERT INTO Spejder
                   (Navn, BrugerNavn, Adgangskode, Foeselsdag)
+                  OUTPUT INSERTED.SpejderId
                   VALUES
                   (@navn, @brugerNavn, @adgangskode, @foeselsdag)",
                 db.forbind);
@@ -26,7 +27,10 @@ namespace DLS_Lib.Repository
             command.Parameters.AddWithValue("@adgangskode", spejder.Adgangskode);
             command.Parameters.AddWithValue("@foeselsdag", spejder.Foeselsdag);
 
-            command.ExecuteNonQuery();
+            // Databasen giver spejderen et Id
+            spejder.Id = (int)command.ExecuteScalar();
+
+            GemTegn(spejder);
             db.LukForbindelse();
         }
 
@@ -38,26 +42,23 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Spejder",
+                "SELECT SpejderId, Navn, BrugerNavn, Adgangskode, Foeselsdag FROM Spejder",
                 db.forbind);
 
             var reader = command.ExecuteReader();
 
             while (reader.Read())
             {
-                Spejder spejder = new Spejder
-                {
-                    Id = reader.GetInt32(0),
-                    Navn = reader.GetString(1),
-                    BrugerNavn = reader.GetString(2),
-                    Adgangskode = reader.GetString(3),
-                    Foeselsdag = DateOnly.FromDateTime(reader.GetDateTime(4))
-                };
-
-                spejdere.Add(spejder);
+                spejdere.Add(LavSpejder(reader));
             }
 
             reader.Close();
+
+            foreach (Spejder spejder in spejdere)
+            {
+                HentTegn(spejder);
+            }
+
             db.LukForbindelse();
 
             return spejdere;
@@ -69,7 +70,9 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Spejder WHERE SpejderId = @id",
+                @"SELECT SpejderId, Navn, BrugerNavn, Adgangskode, Foeselsdag
+                  FROM Spejder
+                  WHERE SpejderId = @id",
                 db.forbind);
 
             command.Parameters.AddWithValue("@id", id);
@@ -80,17 +83,16 @@ namespace DLS_Lib.Repository
 
             if (reader.Read())
             {
-                spejder = new Spejder
-                {
-                    Id = reader.GetInt32(0),
-                    Navn = reader.GetString(1),
-                    BrugerNavn = reader.GetString(2),
-                    Adgangskode = reader.GetString(3),
-                    Foeselsdag = DateOnly.FromDateTime(reader.GetDateTime(4))
-                };
+                spejder = LavSpejder(reader);
             }
 
             reader.Close();
+
+            if (spejder != null)
+            {
+                HentTegn(spejder);
+            }
+
             db.LukForbindelse();
 
             return spejder;
@@ -106,8 +108,8 @@ namespace DLS_Lib.Repository
                   SET Navn = @navn,
                       BrugerNavn = @brugerNavn,
                       Adgangskode = @adgangskode,
-                      Foedselsdato = @foedselsdato
-                  WHERE Id = @id",
+                      Foeselsdag = @foeselsdag
+                  WHERE SpejderId = @id",
                 db.forbind);
 
             command.Parameters.AddWithValue("@id", spejder.Id);
@@ -117,16 +119,25 @@ namespace DLS_Lib.Repository
             command.Parameters.AddWithValue("@foeselsdag", spejder.Foeselsdag);
 
             command.ExecuteNonQuery();
+
+            // Slet de gamle tegn og gem de nye
+            var sletCommand = new SqlCommand(
+                "DELETE FROM SpejderTegn WHERE SpejderId = @id",
+                db.forbind);
+            sletCommand.Parameters.AddWithValue("@id", spejder.Id);
+            sletCommand.ExecuteNonQuery();
+
+            GemTegn(spejder);
             db.LukForbindelse();
         }
 
-        // DELETE
+        // DELETE (tegn og tilmeldinger slettes automatisk med ON DELETE CASCADE)
         public void Slet(int id)
         {
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "DELETE FROM Spejder WHERE Id = @id",
+                "DELETE FROM Spejder WHERE SpejderId = @id",
                 db.forbind);
 
             command.Parameters.AddWithValue("@id", id);
@@ -134,6 +145,47 @@ namespace DLS_Lib.Repository
             command.ExecuteNonQuery();
             db.LukForbindelse();
         }
+
+        // Laver en spejder ud fra den række readeren står på
+        private Spejder LavSpejder(SqlDataReader reader)
+        {
+            Spejder spejder = new Spejder();
+            spejder.Id = reader.GetInt32(0);
+            spejder.Navn = reader.GetString(1);
+            spejder.BrugerNavn = reader.GetString(2);
+            spejder.Adgangskode = reader.GetString(3);
+            spejder.Foeselsdag = DateOnly.FromDateTime(reader.GetDateTime(4));
+            return spejder;
+        }
+
+        // Henter spejderens tegn. Forbindelsen skal være åben.
+        private void HentTegn(Spejder spejder)
+        {
+            var command = new SqlCommand(
+                "SELECT TegnId FROM SpejderTegn WHERE SpejderId = @id",
+                db.forbind);
+            command.Parameters.AddWithValue("@id", spejder.Id);
+
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                spejder.TegnIds.Add(reader.GetInt32(0));
+            }
+            reader.Close();
+        }
+
+        // Gemmer spejderens tegn. Forbindelsen skal være åben.
+        private void GemTegn(Spejder spejder)
+        {
+            foreach (int tegnId in spejder.TegnIds)
+            {
+                var command = new SqlCommand(
+                    "INSERT INTO SpejderTegn (SpejderId, TegnId) VALUES (@spejderId, @tegnId)",
+                    db.forbind);
+                command.Parameters.AddWithValue("@spejderId", spejder.Id);
+                command.Parameters.AddWithValue("@tegnId", tegnId);
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }
-
