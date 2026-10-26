@@ -62,48 +62,35 @@ if (dageTilMandag == 0)
 }
 DateTime mandag = DateTime.Today.AddDays(dageTilMandag);
 
-aktivitetRepo.Opret(new Aktivitet("Mad over bål", mandag.AddHours(17), 12, 8)
+aktivitetRepo.Opret(new Aktivitet("Mad over bål", mandag.AddHours(17), 12, 8, "Bålpladsen", "Vi laver snobrød og pandekager over åben ild. Medbring egen kop!")
 {
-    Sted = "Bålpladsen",
-    Beskrivelse = "Vi laver snobrød og pandekager over åben ild. Medbring egen kop!",
     LederIds = new List<int> { 1 }
 });
-aktivitetRepo.Opret(new Aktivitet("Ridetur på Hedegården", mandag.AddDays(1).AddHours(10), 6, 10)
+aktivitetRepo.Opret(new Aktivitet("Ridetur på Hedegården", mandag.AddDays(1).AddHours(10), 6, 10, "Hedegården", "Besøg gården, mød dyrene og tag en tur på hesteryg rundt om markerne.")
 {
-    Sted = "Hedegården",
-    Beskrivelse = "Besøg gården, mød dyrene og tag en tur på hesteryg rundt om markerne.",
     LederIds = new List<int> { 2 }
 });
-aktivitetRepo.Opret(new Aktivitet("Fang dyr i vandhullet", mandag.AddDays(1).AddHours(14), 15, 6)
+aktivitetRepo.Opret(new Aktivitet("Fang dyr i vandhullet", mandag.AddDays(1).AddHours(14), 15, 6, "Vandhullet", "Med net og spande undersøger vi hvad der lever i vandet – haletudser, vandkalve og meget mere.")
 {
-    Sted = "Vandhullet",
     Beskrivelse = "Med net og spande undersøger vi hvad der lever i vandet – haletudser, vandkalve og meget mere.",
     LederIds = new List<int> { 3 }
 });
-aktivitetRepo.Opret(new Aktivitet("Kanotur på søen", mandag.AddDays(2).AddHours(9).AddMinutes(30), 8, 12)
+aktivitetRepo.Opret(new Aktivitet("Kanotur på søen", mandag.AddDays(2).AddHours(9).AddMinutes(30), 8, 12, "Hedeland Sø", "En hel formiddag på vandet. Kræver at man kan svømme og har kanotegnet.")
 {
-    Sted = "Hedeland Sø",
-    Beskrivelse = "En hel formiddag på vandet. Kræver at man kan svømme og har kanotegnet.",
     LederIds = new List<int> { 2, 3 },
     KraevedeTegnIds = new List<int> { 3, 5 }
 });
-aktivitetRepo.Opret(new Aktivitet("Byg en svævebane", mandag.AddDays(3).AddHours(13), 10, 11)
+aktivitetRepo.Opret(new Aktivitet("Byg en svævebane", mandag.AddDays(3).AddHours(13), 10, 11, "Skoven", "Vi bygger en svævebane mellem træerne med reb og knob.")
 {
-    Sted = "Skoven",
-    Beskrivelse = "Vi bygger en svævebane mellem træerne med reb og knob.",
     LederIds = new List<int> { 3 },
     KraevedeTegnIds = new List<int> { 4 }
 });
-aktivitetRepo.Opret(new Aktivitet("Natløb med lommelygter", mandag.AddDays(3).AddHours(21), 20, 11)
+aktivitetRepo.Opret(new Aktivitet("Natløb med lommelygter", mandag.AddDays(3).AddHours(21), 20, 11, "Lejrens indgang", "Find posterne i mørket og løs opgaverne undervejs.")
 {
-    Sted = "Lejrens indgang",
-    Beskrivelse = "Find posterne i mørket og løs opgaverne undervejs.",
     LederIds = new List<int> { 1, 2 }
 });
-aktivitetRepo.Opret(new Aktivitet("Lejrbål og sang", mandag.AddDays(4).AddHours(20), 200, 0)
+aktivitetRepo.Opret(new Aktivitet("Lejrbål og sang", mandag.AddDays(4).AddHours(20), 200, 0, "Det store bål", "Ugens afslutning med sange, sketches og skumfiduser for hele lejren.")
 {
-    Sted = "Det store bål",
-    Beskrivelse = "Ugens afslutning med sange, sketches og skumfiduser for hele lejren.",
     LederIds = new List<int> { 1, 2, 3 }
 });
 

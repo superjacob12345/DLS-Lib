@@ -28,12 +28,14 @@ namespace DLS_Lib.Repository
                 db.forbind);
 
             command.Parameters.AddWithValue("@navn", aktivitet.Navn);
-            command.Parameters.AddWithValue("@tidspunkt", aktivitet.Tidspunkt);
+            command.Parameters.AddWithValue("@tidspunkt", aktivitet.Tidspunkt.ToString("yyyy-MM-dd"));
             command.Parameters.AddWithValue("@maksDeltagere", aktivitet.MaksDeltagere);
             command.Parameters.AddWithValue("@minAlder", aktivitet.MinAlder);
             command.Parameters.AddWithValue("@sted", aktivitet.Sted);
             command.Parameters.AddWithValue("@beskrivelse", aktivitet.Beskrivelse);
 
+            string data = aktivitet.ToString();
+            
             command.ExecuteNonQuery();
             db.LukForbindelse();
         }

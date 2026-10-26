@@ -10,18 +10,18 @@ namespace DLS_Lib.UserStories
         private string _navn = "";
         private string _brugerNavn = "";
         private string _adgangskode = "";
-        private DateOnly _foedselsdato;
+        private DateOnly _foeselsdag;
         private List<int> _tegnIds = new List<int>();
 
         public Spejder() { }
 
-        public Spejder(int id, string navn, string brugerNavn, string adgangskode, DateOnly foedselsdato)
+        public Spejder(int id, string navn, string brugerNavn, string adgangskode, DateOnly foeselsdag)
         {
             _id = id;
             _navn = navn;
             _brugerNavn = brugerNavn;
             _adgangskode = adgangskode;
-            _foedselsdato = foedselsdato;
+            _foeselsdag = foeselsdag;
         }
 
         public int Id
@@ -44,10 +44,10 @@ namespace DLS_Lib.UserStories
             get { return _adgangskode; }
             set { _adgangskode = value; }
         }
-        public DateOnly Foedselsdato
+        public DateOnly Foeselsdag
         {
-            get { return _foedselsdato; }
-            set { _foedselsdato = value; }
+            get { return _foeselsdag; }
+            set { _foeselsdag = value; }
         }
 
         // De tegn (færdigheder) spejderen har taget
@@ -63,8 +63,8 @@ namespace DLS_Lib.UserStories
             get
             {
                 DateOnly idag = DateOnly.FromDateTime(DateTime.Today);
-                int alder = idag.Year - _foedselsdato.Year;
-                if (_foedselsdato > idag.AddYears(-alder))
+                int alder = idag.Year - _foeselsdag.Year;
+                if (_foeselsdag > idag.AddYears(-alder))
                 {
                     alder--;
                 }
@@ -74,7 +74,7 @@ namespace DLS_Lib.UserStories
 
         public override string ToString()
         {
-            return $"Id: {_id}, Navn: {_navn}, Alder: {Alder}, BrugerNavn: {_brugerNavn}, Fødselsdato: {_foedselsdato}";
+            return $"Id: {_id}, Navn: {_navn}, Alder: {Alder}, BrugerNavn: {_brugerNavn}, Fødselsdato: {_foeselsdag}";
         }
     }
 }

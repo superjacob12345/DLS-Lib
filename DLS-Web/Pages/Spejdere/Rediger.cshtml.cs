@@ -51,7 +51,7 @@ namespace DLS_Web.Pages.Spejdere
             }
             else
             {
-                Spejder.Foedselsdato = DateOnly.FromDateTime(DateTime.Today.AddYears(-10));
+                Spejder.Foeselsdag = DateOnly.FromDateTime(DateTime.Today.AddYears(-10));
             }
 
             AlleTegn = _tegnRepo.HentAlle();
@@ -105,7 +105,7 @@ namespace DLS_Web.Pages.Spejdere
             {
                 Fejl.Add("Skriv en adgangskode");
             }
-            if (Spejder.Foedselsdato > DateOnly.FromDateTime(DateTime.Today))
+            if (Spejder.Foeselsdag > DateOnly.FromDateTime(DateTime.Today))
             {
                 Fejl.Add("Fødselsdatoen kan ikke ligge i fremtiden");
             }

@@ -10,7 +10,7 @@ namespace DLS_Lib.UserStories
 {
     public class DLSopretForbindelse
     {
-        private DLSopretForbindelse _db = new DLSopretForbindelse();
+ 
 
 
         public void OpretForbindelse()

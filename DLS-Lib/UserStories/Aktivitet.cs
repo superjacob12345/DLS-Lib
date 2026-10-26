@@ -18,12 +18,14 @@ namespace DLS_Lib.UserStories
 
         public Aktivitet() { }
 
-        public Aktivitet(string navn, DateTime tidspunkt, int maksDeltagere, int minAlder)
+        public Aktivitet(string navn, DateTime tidspunkt, int maksDeltagere, int minAlder, string sted,string beskrivelse )
         {
             _navn = navn;
             _tidspunkt = tidspunkt;
             _maksDeltagere = maksDeltagere;
             _minAlder = minAlder;
+            _sted = sted;
+            _beskrivelse = beskrivelse;
         }
 
         public int Id
@@ -81,10 +83,11 @@ namespace DLS_Lib.UserStories
             get { return _kraevedeTegnIds; }
             set { _kraevedeTegnIds = value; }
         }
-
         public override string ToString()
         {
-            return $"id: {_id}   Aktivitet: {_navn}, Tidspunkt: {_tidspunkt}, Maks Deltagere: {_maksDeltagere}, Min Alder: {_minAlder}";
+            return $"Aktivitet: {Navn}, Tidspunkt: {Tidspunkt}, MaksDeltagere: {MaksDeltagere}, MinAlder: {MinAlder}, Sted: {Sted}, Beskrivelse: {Beskrivelse}";
+
         }
+        
     }
 }

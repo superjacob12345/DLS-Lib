@@ -7,6 +7,7 @@ namespace DLS_Lib.Repository
 {
     public class TegnRepository
     {
+        private static int nextID = 1;
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
         // CREATE

@@ -16,15 +16,15 @@ namespace DLS_Lib.Repository
 
             var command = new SqlCommand(
                 @"INSERT INTO Spejder
-                  (Navn, BrugerNavn, Adgangskode, Foedselsdato)
+                  (Navn, BrugerNavn, Adgangskode, Foeselsdag)
                   VALUES
-                  (@navn, @brugerNavn, @adgangskode, @foedselsdato)",
+                  (@navn, @brugerNavn, @adgangskode, @foeselsdag)",
                 db.forbind);
 
             command.Parameters.AddWithValue("@navn", spejder.Navn);
             command.Parameters.AddWithValue("@brugerNavn", spejder.BrugerNavn);
             command.Parameters.AddWithValue("@adgangskode", spejder.Adgangskode);
-            command.Parameters.AddWithValue("@foedselsdato", spejder.Foedselsdato);
+            command.Parameters.AddWithValue("@foeselsdag", spejder.Foeselsdag);
 
             command.ExecuteNonQuery();
             db.LukForbindelse();
@@ -51,7 +51,7 @@ namespace DLS_Lib.Repository
                     Navn = reader.GetString(1),
                     BrugerNavn = reader.GetString(2),
                     Adgangskode = reader.GetString(3),
-                    Foedselsdato = DateOnly.FromDateTime(reader.GetDateTime(4))
+                    Foeselsdag = DateOnly.FromDateTime(reader.GetDateTime(4))
                 };
 
                 spejdere.Add(spejder);
@@ -69,7 +69,7 @@ namespace DLS_Lib.Repository
             db.OpretForbindelse();
 
             var command = new SqlCommand(
-                "SELECT * FROM Spejder WHERE Id = @id",
+                "SELECT * FROM Spejder WHERE SpejderId = @id",
                 db.forbind);
 
             command.Parameters.AddWithValue("@id", id);
@@ -86,7 +86,7 @@ namespace DLS_Lib.Repository
                     Navn = reader.GetString(1),
                     BrugerNavn = reader.GetString(2),
                     Adgangskode = reader.GetString(3),
-                    Foedselsdato = DateOnly.FromDateTime(reader.GetDateTime(4))
+                    Foeselsdag = DateOnly.FromDateTime(reader.GetDateTime(4))
                 };
             }
 
@@ -114,7 +114,7 @@ namespace DLS_Lib.Repository
             command.Parameters.AddWithValue("@navn", spejder.Navn);
             command.Parameters.AddWithValue("@brugerNavn", spejder.BrugerNavn);
             command.Parameters.AddWithValue("@adgangskode", spejder.Adgangskode);
-            command.Parameters.AddWithValue("@foedselsdato", spejder.Foedselsdato);
+            command.Parameters.AddWithValue("@foeselsdag", spejder.Foeselsdag);
 
             command.ExecuteNonQuery();
             db.LukForbindelse();
