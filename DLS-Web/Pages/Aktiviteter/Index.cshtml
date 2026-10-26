@@ -36,14 +36,21 @@
     </div>
 }
 
-@foreach (var dag in Model.Aktiviteter.GroupBy(a => a.Tidspunkt.Date))
-{
-    <section class="dag">
-        @{ string dagNavn = dag.Key.ToString("dddd d. MMMM"); }
-        <h2 class="dag-titel">@(dagNavn.Substring(0, 1).ToUpper() + dagNavn.Substring(1))</h2>
+@{
+    // Bruges til at vise en overskrift, hver gang en ny dag starter
+    DateTime forrigeDag = DateTime.MinValue;
+}
 
-        @foreach (var a in dag)
+<section class="dag">
+        @foreach (Aktivitet a in Model.Aktiviteter)
         {
+            if (a.Tidspunkt.Date != forrigeDag)
+            {
+                forrigeDag = a.Tidspunkt.Date;
+                string dagNavn = forrigeDag.ToString("dddd d. MMMM");
+                <h2 class="dag-titel">@(dagNavn.Substring(0, 1).ToUpper() + dagNavn.Substring(1))</h2>
+            }
+
             int antal = Model.AntalTilmeldte(a);
             int procent = a.MaksDeltagere > 0 ? Math.Min(100, antal * 100 / a.MaksDeltagere) : 100;
             bool tilmeldt = Model.ErTilmeldt(a);
@@ -99,7 +106,7 @@
                         <a asp-page="Tilmeldte" asp-route-id="@a.Id" class="btn btn-primary btn-sm">Se tilmeldte (@antal)</a>
                         <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-lys btn-sm">Ret</a>
                         <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
-                            <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du nedlægge @a.Navn? Alle tilmeldinger slettes også.')">Nedlæg</button>
+                            <button type="submit" class="btn btn-fare btn-sm">Nedlæg</button>
                         </form>
                     }
                     else if (tilmeldt)
@@ -122,5 +129,4 @@
                 </div>
             </article>
         }
-    </section>
-}
+</section>

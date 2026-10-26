@@ -1,14 +1,8 @@
 ﻿@{
     string? rolle = Context.Session.GetString("Rolle");
-    string navn = (Context.Session.GetString("Navn") ?? "");
-}
-@functions {
-    // Markerer menupunktet for den side man står på
-    string Aktiv(string side)
-    {
-        string nuvaerende = ViewContext.RouteData.Values["page"] as string ?? "";
-        return nuvaerende.StartsWith(side) ? "active" : "";
-    }
+    string navn = Context.Session.GetString("Navn") ?? "";
+    // Den side man står på, så menupunktet kan markeres
+    string side = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
 }
 <!DOCTYPE html>
 <html lang="da">
@@ -23,31 +17,27 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg topbar">
-            <div class="container">
+        <nav class="navbar navbar-expand topbar">
+            <div class="container flex-wrap gap-2">
                 <a class="navbar-brand brand" asp-page="/Index">
                     <span class="brand-ikon">⚜</span>
                     <span>De Lyserøde Spejdere<small>Landslejr Hedeland</small></span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
-                        aria-controls="menu" aria-expanded="false" aria-label="Vis menu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="menu">
-                    <ul class="navbar-nav me-auto">
+                <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+                    <ul class="navbar-nav flex-wrap me-auto">
                         @if (rolle != null)
                         {
-                            <li class="nav-item"><a class="nav-link @Aktiv("/Aktiviteter")" asp-page="/Aktiviteter/Index">Aktiviteter</a></li>
+                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Aktiviteter") ? "active" : "")" asp-page="/Aktiviteter/Index">Aktiviteter</a></li>
                         }
                         @if (rolle == "Spejder")
                         {
-                            <li class="nav-item"><a class="nav-link @Aktiv("/MineAktiviteter")" asp-page="/MineAktiviteter">Mine aktiviteter</a></li>
+                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/MineAktiviteter") ? "active" : "")" asp-page="/MineAktiviteter">Mine aktiviteter</a></li>
                         }
                         @if (rolle == "Leder")
                         {
-                            <li class="nav-item"><a class="nav-link @Aktiv("/Spejdere")" asp-page="/Spejdere/Index">Spejdere</a></li>
-                            <li class="nav-item"><a class="nav-link @Aktiv("/Ledere")" asp-page="/Ledere/Index">Ledere</a></li>
-                            <li class="nav-item"><a class="nav-link @Aktiv("/Tegnene")" asp-page="/Tegnene/Index">Tegn</a></li>
+                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Spejdere") ? "active" : "")" asp-page="/Spejdere/Index">Spejdere</a></li>
+                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Ledere") ? "active" : "")" asp-page="/Ledere/Index">Ledere</a></li>
+                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Tegnene") ? "active" : "")" asp-page="/Tegnene/Index">Tegn</a></li>
                         }
                     </ul>
                     @if (rolle == null)
@@ -72,13 +62,13 @@
     </header>
 
     <main class="container py-4 flex-grow-1">
-        @if (TempData["Besked"] is string besked)
+        @if (TempData["Besked"] != null)
         {
-            <div class="alert alert-success besked" role="status">✓ @besked</div>
+            <div class="alert alert-success besked" role="status">✓ @TempData["Besked"]</div>
         }
-        @if (TempData["Fejl"] is string fejl)
+        @if (TempData["Fejl"] != null)
         {
-            <div class="alert alert-danger besked" role="alert">@fejl</div>
+            <div class="alert alert-danger besked" role="alert">@TempData["Fejl"]</div>
         }
         @RenderBody()
     </main>
@@ -90,10 +80,5 @@
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

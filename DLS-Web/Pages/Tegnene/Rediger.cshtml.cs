@@ -1,7 +1,6 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Tegnene
@@ -9,26 +8,13 @@ namespace DLS_Web.Pages.Tegnene
     // Bruges både til at oprette (uden id) og rette (med id)
     public class RedigerModel : PageModel
     {
-        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
-        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
-        {
-            string? rolle = HttpContext.Session.GetString("Rolle");
-            if (rolle == null)
-            {
-                TempData["Fejl"] = "Du skal logge ind først";
-                context.Result = RedirectToPage("/Login");
-            }
-            else if (rolle != "Leder")
-            {
-                TempData["Fejl"] = "Den side er kun for ledere";
-                context.Result = RedirectToPage("/Index");
-            }
-        }
-
         private TegnRepository _repo;
 
         [BindProperty]
         public Tegn Tegn { get; set; } = new Tegn();
+
+        // Fejlbeskeder der vises over formularen
+        public List<string> Fejl { get; set; } = new List<string>();
 
         public bool ErNy
         {
@@ -42,6 +28,12 @@ namespace DLS_Web.Pages.Tegnene
 
         public IActionResult OnGet(int? id)
         {
+            // Kun ledere må oprette og rette tegn
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
             if (id != null)
             {
                 Tegn? tegn = _repo.HentEn(id.Value);
@@ -56,15 +48,21 @@ namespace DLS_Web.Pages.Tegnene
 
         public IActionResult OnPost()
         {
-            // Tomme felter kommer ind som null, så de laves om til ""
-            Tegn.Navn = (Tegn.Navn ?? "").Trim();
-            if (Tegn.Navn == "")
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
             {
-                ModelState.AddModelError("", "Tegnet skal have et navn");
+                return RedirectToPage("/Login");
             }
 
-            if (!ModelState.IsValid)
+            // Et tomt tekstfelt kommer ind som null, så det laves om til ""
+            if (Tegn.Navn == null)
             {
+                Tegn.Navn = "";
+            }
+            Tegn.Navn = Tegn.Navn.Trim();
+
+            if (Tegn.Navn == "")
+            {
+                Fejl.Add("Tegnet skal have et navn");
                 return Page();
             }
 

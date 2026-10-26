@@ -10,7 +10,15 @@
     <h1 class="h2 mb-4">@(Model.ErNy ? "Ny aktivitet" : "Ret " + Model.Aktivitet.Navn)</h1>
 
     <form method="post">
-        <div asp-validation-summary="All" class="alert alert-danger besked"></div>
+        @if (Model.Fejl.Count > 0)
+        {
+            <div class="alert alert-danger besked">
+                @foreach (string fejl in Model.Fejl)
+                {
+                    <div>@fejl</div>
+                }
+            </div>
+        }
         <input type="hidden" asp-for="Aktivitet.Id" />
 
         <div class="row g-3">

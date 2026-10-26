@@ -1,7 +1,6 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Spejdere
@@ -9,22 +8,6 @@ namespace DLS_Web.Pages.Spejdere
     // Bruges både til at oprette (uden id) og rette (med id)
     public class RedigerModel : PageModel
     {
-        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
-        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
-        {
-            string? rolle = HttpContext.Session.GetString("Rolle");
-            if (rolle == null)
-            {
-                TempData["Fejl"] = "Du skal logge ind først";
-                context.Result = RedirectToPage("/Login");
-            }
-            else if (rolle != "Leder")
-            {
-                TempData["Fejl"] = "Den side er kun for ledere";
-                context.Result = RedirectToPage("/Index");
-            }
-        }
-
         private SpejderRepository _repo;
         private LederRepository _lederRepo;
         private TegnRepository _tegnRepo;
@@ -33,6 +16,9 @@ namespace DLS_Web.Pages.Spejdere
         public Spejder Spejder { get; set; } = new Spejder();
 
         public List<Tegn> AlleTegn { get; set; } = new List<Tegn>();
+
+        // Fejlbeskeder der vises over formularen
+        public List<string> Fejl { get; set; } = new List<string>();
 
         public bool ErNy
         {
@@ -48,6 +34,12 @@ namespace DLS_Web.Pages.Spejdere
 
         public IActionResult OnGet(int? id)
         {
+            // Kun ledere må oprette og rette spejdere
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
             if (id != null)
             {
                 Spejder? spejder = _repo.HentEn(id.Value);
@@ -68,10 +60,26 @@ namespace DLS_Web.Pages.Spejdere
 
         public IActionResult OnPost()
         {
-            // Tomme felter kommer ind som null, så de laves om til ""
-            Spejder.Navn = (Spejder.Navn ?? "").Trim();
-            Spejder.BrugerNavn = (Spejder.BrugerNavn ?? "").Trim();
-            Spejder.Adgangskode = Spejder.Adgangskode ?? "";
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
+            // Tomme tekstfelter kommer ind som null, så de laves om til ""
+            if (Spejder.Navn == null)
+            {
+                Spejder.Navn = "";
+            }
+            if (Spejder.BrugerNavn == null)
+            {
+                Spejder.BrugerNavn = "";
+            }
+            if (Spejder.Adgangskode == null)
+            {
+                Spejder.Adgangskode = "";
+            }
+            Spejder.Navn = Spejder.Navn.Trim();
+            Spejder.BrugerNavn = Spejder.BrugerNavn.Trim();
 
             // Lader man adgangskoden stå tom ved rettelse, beholdes den gamle
             Spejder? gammel = _repo.HentEn(Spejder.Id);
@@ -80,34 +88,29 @@ namespace DLS_Web.Pages.Spejdere
                 Spejder.Adgangskode = gammel.Adgangskode;
             }
 
+            // Tjek at felterne er udfyldt rigtigt
             if (Spejder.Navn == "")
             {
-                ModelState.AddModelError("", "Skriv spejderens navn");
+                Fejl.Add("Skriv spejderens navn");
             }
             if (Spejder.BrugerNavn == "")
             {
-                ModelState.AddModelError("", "Skriv et brugernavn");
+                Fejl.Add("Skriv et brugernavn");
             }
-            else
+            else if (BrugerNavnOptaget())
             {
-                // Brugernavnet må ikke bruges af en anden spejder eller en leder
-                bool optaget = _repo.HentAlle().Any(s => s.Id != Spejder.Id && s.BrugerNavn.ToLower() == Spejder.BrugerNavn.ToLower())
-                    || _lederRepo.HentAlle().Any(l => l.BrugerNavn.ToLower() == Spejder.BrugerNavn.ToLower());
-                if (optaget)
-                {
-                    ModelState.AddModelError("", "Brugernavnet \"" + Spejder.BrugerNavn + "\" er allerede taget");
-                }
+                Fejl.Add("Brugernavnet \"" + Spejder.BrugerNavn + "\" er allerede taget");
             }
             if (Spejder.Adgangskode == "")
             {
-                ModelState.AddModelError("", "Skriv en adgangskode");
+                Fejl.Add("Skriv en adgangskode");
             }
             if (Spejder.Foedselsdato > DateOnly.FromDateTime(DateTime.Today))
             {
-                ModelState.AddModelError("", "Fødselsdatoen kan ikke ligge i fremtiden");
+                Fejl.Add("Fødselsdatoen kan ikke ligge i fremtiden");
             }
 
-            if (!ModelState.IsValid)
+            if (Fejl.Count > 0)
             {
                 AlleTegn = _tegnRepo.HentAlle();
                 return Page();
@@ -124,6 +127,27 @@ namespace DLS_Web.Pages.Spejdere
                 TempData["Besked"] = Spejder.Navn + " er gemt";
             }
             return RedirectToPage("Index");
+        }
+
+        // Brugernavnet må ikke bruges af en anden spejder eller en leder
+        private bool BrugerNavnOptaget()
+        {
+            string navn = Spejder.BrugerNavn.ToLower();
+            foreach (Spejder s in _repo.HentAlle())
+            {
+                if (s.Id != Spejder.Id && s.BrugerNavn.ToLower() == navn)
+                {
+                    return true;
+                }
+            }
+            foreach (Leder l in _lederRepo.HentAlle())
+            {
+                if (l.BrugerNavn.ToLower() == navn)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

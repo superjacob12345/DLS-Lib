@@ -30,19 +30,24 @@ namespace DLS_Web.Pages
 
         public void OnGet()
         {
-            Kommende = _aktivitetRepo.HentAlle()
-                .Where(a => a.Tidspunkt >= DateTime.Now)
-                .OrderBy(a => a.Tidspunkt)
-                .Take(4)
-                .ToList();
+            // Find de 4 første aktiviteter der ikke er begyndt endnu
+            List<Aktivitet> sorteret = _aktivitetRepo.HentAlle().OrderBy(a => a.Tidspunkt).ToList();
+            foreach (Aktivitet a in sorteret)
+            {
+                if (a.Tidspunkt >= DateTime.Now && Kommende.Count < 4)
+                {
+                    Kommende.Add(a);
+                }
+            }
 
             AntalAktiviteter = _aktivitetRepo.HentAlle().Count;
             AntalSpejdere = _spejderRepo.HentAlle().Count;
             AntalTilmeldinger = _tilmeldingRepo.HentAlle().Count;
 
-            if ((HttpContext.Session.GetString("Rolle") == "Spejder"))
+            if (HttpContext.Session.GetString("Rolle") == "Spejder")
             {
-                MineTilmeldinger = _tilmeldingRepo.HentForSpejder((HttpContext.Session.GetInt32("BrugerId") ?? 0)).Count;
+                int spejderId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
+                MineTilmeldinger = _tilmeldingRepo.HentForSpejder(spejderId).Count;
             }
         }
     }

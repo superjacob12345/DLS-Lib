@@ -49,7 +49,7 @@
                                 @if (l.Id != Model.MitId)
                                 {
                                     <form method="post" asp-page-handler="Slet" asp-route-id="@l.Id">
-                                        <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du slette @l.Navn?')">Slet</button>
+                                        <button type="submit" class="btn btn-fare btn-sm">Slet</button>
                                     </form>
                                 }
                             </div>

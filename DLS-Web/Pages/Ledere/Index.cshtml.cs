@@ -1,29 +1,12 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Ledere
 {
     public class IndexModel : PageModel
     {
-        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
-        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
-        {
-            string? rolle = HttpContext.Session.GetString("Rolle");
-            if (rolle == null)
-            {
-                TempData["Fejl"] = "Du skal logge ind først";
-                context.Result = RedirectToPage("/Login");
-            }
-            else if (rolle != "Leder")
-            {
-                TempData["Fejl"] = "Den side er kun for ledere";
-                context.Result = RedirectToPage("/Index");
-            }
-        }
-
         private LederRepository _repo;
         private AktivitetRepository _aktivitetRepo;
 
@@ -39,21 +22,33 @@ namespace DLS_Web.Pages.Ledere
             _aktivitetRepo = aktivitetRepo;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
+            // Kun ledere må se siden
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
             Ledere = _repo.HentAlle().OrderBy(l => l.Navn).ToList();
-            MitId = (HttpContext.Session.GetInt32("BrugerId") ?? 0);
+            MitId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
+            return Page();
         }
 
         public IActionResult OnPostSlet(int id)
         {
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
             Leder? leder = _repo.HentEn(id);
             if (leder == null)
             {
                 return RedirectToPage();
             }
 
-            if (id == (HttpContext.Session.GetInt32("BrugerId") ?? 0))
+            if (id == HttpContext.Session.GetInt32("BrugerId"))
             {
                 TempData["Fejl"] = "Du kan ikke slette dig selv";
                 return RedirectToPage();
@@ -78,12 +73,18 @@ namespace DLS_Web.Pages.Ledere
             return RedirectToPage();
         }
 
+        // De aktiviteter lederen står for
         public List<Aktivitet> HentAktiviteter(Leder leder)
         {
-            return _aktivitetRepo.HentAlle()
-                .Where(a => a.LederIds.Contains(leder.Id))
-                .OrderBy(a => a.Tidspunkt)
-                .ToList();
+            List<Aktivitet> resultat = new List<Aktivitet>();
+            foreach (Aktivitet a in _aktivitetRepo.HentAlle())
+            {
+                if (a.LederIds.Contains(leder.Id))
+                {
+                    resultat.Add(a);
+                }
+            }
+            return resultat;
         }
     }
 }

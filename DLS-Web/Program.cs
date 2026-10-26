@@ -9,12 +9,7 @@ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("da-DK");
 CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("da-DK");
 
 // Add services to the container.
-// Vi validerer selv felterne i OnPost, så tomme lister (fx ingen tegn valgt) ikke giver fejl
-builder.Services.AddRazorPages()
-    .AddMvcOptions(o =>
-    {
-        o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-    });
+builder.Services.AddRazorPages();
 
 builder.Services.AddSingleton<AktivitetRepository>();
 builder.Services.AddSingleton<SpejderRepository>();

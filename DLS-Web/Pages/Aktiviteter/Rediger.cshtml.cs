@@ -1,7 +1,6 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Aktiviteter
@@ -9,22 +8,6 @@ namespace DLS_Web.Pages.Aktiviteter
     // Bruges både til at oprette (uden id) og rette (med id)
     public class RedigerModel : PageModel
     {
-        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
-        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
-        {
-            string? rolle = HttpContext.Session.GetString("Rolle");
-            if (rolle == null)
-            {
-                TempData["Fejl"] = "Du skal logge ind først";
-                context.Result = RedirectToPage("/Login");
-            }
-            else if (rolle != "Leder")
-            {
-                TempData["Fejl"] = "Den side er kun for ledere";
-                context.Result = RedirectToPage("/Index");
-            }
-        }
-
         private AktivitetRepository _aktivitetRepo;
         private LederRepository _lederRepo;
         private TegnRepository _tegnRepo;
@@ -36,6 +19,9 @@ namespace DLS_Web.Pages.Aktiviteter
         // Til afkrydsningsfelterne
         public List<Leder> AlleLedere { get; set; } = new List<Leder>();
         public List<Tegn> AlleTegn { get; set; } = new List<Tegn>();
+
+        // Fejlbeskeder der vises over formularen
+        public List<string> Fejl { get; set; } = new List<string>();
 
         public bool ErNy
         {
@@ -53,12 +39,18 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public IActionResult OnGet(int? id)
         {
+            // Kun ledere må oprette og rette aktiviteter
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
             if (id == null)
             {
                 // Ny aktivitet: forslag til tidspunkt, og lederen der opretter står for den
                 Aktivitet.Tidspunkt = DateTime.Today.AddDays(1).AddHours(10);
                 Aktivitet.MaksDeltagere = 10;
-                Aktivitet.LederIds = new List<int> { (HttpContext.Session.GetInt32("BrugerId") ?? 0) };
+                Aktivitet.LederIds.Add(HttpContext.Session.GetInt32("BrugerId") ?? 0);
             }
             else
             {
@@ -70,45 +62,62 @@ namespace DLS_Web.Pages.Aktiviteter
                 Aktivitet = aktivitet;
             }
 
-            HentValg();
+            AlleLedere = _lederRepo.HentAlle();
+            AlleTegn = _tegnRepo.HentAlle();
             return Page();
         }
 
         public IActionResult OnPost()
         {
-            // Tomme felter kommer ind som null, så de laves om til ""
-            Aktivitet.Navn = (Aktivitet.Navn ?? "").Trim();
-            Aktivitet.Sted = (Aktivitet.Sted ?? "").Trim();
-            Aktivitet.Beskrivelse = (Aktivitet.Beskrivelse ?? "").Trim();
-
-            if (Aktivitet.Navn == "")
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
             {
-                ModelState.AddModelError("", "Aktiviteten skal have et navn");
+                return RedirectToPage("/Login");
+            }
+
+            // Tomme tekstfelter kommer ind som null, så de laves om til ""
+            if (Aktivitet.Navn == null)
+            {
+                Aktivitet.Navn = "";
+            }
+            if (Aktivitet.Sted == null)
+            {
+                Aktivitet.Sted = "";
+            }
+            if (Aktivitet.Beskrivelse == null)
+            {
+                Aktivitet.Beskrivelse = "";
+            }
+
+            // Tjek at felterne er udfyldt rigtigt
+            if (Aktivitet.Navn.Trim() == "")
+            {
+                Fejl.Add("Aktiviteten skal have et navn");
             }
             if (Aktivitet.MaksDeltagere < 1)
             {
-                ModelState.AddModelError("", "Der skal være plads til mindst 1 spejder");
+                Fejl.Add("Der skal være plads til mindst 1 spejder");
             }
             if (Aktivitet.MinAlder < 0)
             {
-                ModelState.AddModelError("", "Minimumsalderen kan ikke være negativ");
+                Fejl.Add("Minimumsalderen kan ikke være negativ");
             }
             if (Aktivitet.LederIds.Count == 0)
             {
-                ModelState.AddModelError("", "Vælg mindst én leder der står for aktiviteten");
+                Fejl.Add("Vælg mindst én leder der står for aktiviteten");
             }
             if (Aktivitet.Id != 0)
             {
                 int tilmeldte = _tilmeldingRepo.HentForAktivitet(Aktivitet.Id).Count;
                 if (Aktivitet.MaksDeltagere < tilmeldte)
                 {
-                    ModelState.AddModelError("", "Der er allerede " + tilmeldte + " tilmeldt, så maks kan ikke være lavere");
+                    Fejl.Add("Der er allerede " + tilmeldte + " tilmeldt, så maks kan ikke være lavere");
                 }
             }
 
-            if (!ModelState.IsValid)
+            if (Fejl.Count > 0)
             {
-                HentValg();
+                AlleLedere = _lederRepo.HentAlle();
+                AlleTegn = _tegnRepo.HentAlle();
                 return Page();
             }
 
@@ -123,12 +132,6 @@ namespace DLS_Web.Pages.Aktiviteter
                 TempData["Besked"] = Aktivitet.Navn + " er gemt";
             }
             return RedirectToPage("Index");
-        }
-
-        private void HentValg()
-        {
-            AlleLedere = _lederRepo.HentAlle();
-            AlleTegn = _tegnRepo.HentAlle();
         }
     }
 }

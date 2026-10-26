@@ -43,7 +43,7 @@ else
                                 <div class="handlinger">
                                     <a asp-page="Rediger" asp-route-id="@t.Id" class="btn btn-lys btn-sm">Ret</a>
                                     <form method="post" asp-page-handler="Slet" asp-route-id="@t.Id">
-                                        <button type="submit" class="btn btn-fare btn-sm" onclick="return confirm('Vil du slette tegnet @t.Navn?')">Slet</button>
+                                        <button type="submit" class="btn btn-fare btn-sm">Slet</button>
                                     </form>
                                 </div>
                             </td>

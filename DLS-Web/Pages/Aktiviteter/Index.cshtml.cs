@@ -1,26 +1,14 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Aktiviteter
 {
     // Både spejdere og ledere bruger denne side. Spejdere kan tilmelde/framelde,
-    // ledere kan rette, slette og se deltagere.
+    // ledere kan rette, slette og se hvem der er tilmeldt.
     public class IndexModel : PageModel
     {
-        // Man skal være logget ind for at se siden. Kører før OnGet/OnPost.
-        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
-        {
-            string? rolle = HttpContext.Session.GetString("Rolle");
-            if (rolle == null)
-            {
-                TempData["Fejl"] = "Du skal logge ind først";
-                context.Result = RedirectToPage("/Login");
-            }
-        }
-
         private AktivitetRepository _aktivitetRepo;
         private TilmeldingRepository _tilmeldingRepo;
         private SpejderRepository _spejderRepo;
@@ -49,23 +37,33 @@ namespace DLS_Web.Pages.Aktiviteter
             _tegnRepo = tegnRepo;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
-            ErLeder = (HttpContext.Session.GetString("Rolle") == "Leder");
-            int brugerId = (HttpContext.Session.GetInt32("BrugerId") ?? 0);
+            // Man skal være logget ind for at se aktiviteterne
+            string? rolle = HttpContext.Session.GetString("Rolle");
+            if (rolle == null)
+            {
+                return RedirectToPage("/Login");
+            }
+
+            int brugerId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
+            ErLeder = rolle == "Leder";
             if (!ErLeder)
             {
                 MigSelv = _spejderRepo.HentEn(brugerId);
             }
 
-            foreach (Aktivitet a in _aktivitetRepo.HentAlle().OrderBy(a => a.Tidspunkt))
+            List<Aktivitet> sorteret = _aktivitetRepo.HentAlle().OrderBy(a => a.Tidspunkt).ToList();
+            foreach (Aktivitet a in sorteret)
             {
                 if (Vis == "mine")
                 {
+                    // Lederen ser kun dem lederen står for
                     if (ErLeder && !a.LederIds.Contains(brugerId))
                     {
                         continue;
                     }
+                    // Spejderen ser kun dem spejderen er tilmeldt eller kan tilmelde sig
                     if (MigSelv != null && !ErTilmeldt(a) && Grund(a) != "")
                     {
                         continue;
@@ -73,15 +71,20 @@ namespace DLS_Web.Pages.Aktiviteter
                 }
                 Aktiviteter.Add(a);
             }
+            return Page();
         }
 
         public IActionResult OnPostTilmeld(int id)
         {
-            Spejder? spejder = HentIndloggetSpejder();
+            if (HttpContext.Session.GetString("Rolle") != "Spejder")
+            {
+                return RedirectToPage("/Login");
+            }
+
+            Spejder? spejder = _spejderRepo.HentEn(HttpContext.Session.GetInt32("BrugerId") ?? 0);
             Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
             if (spejder == null || aktivitet == null)
             {
-                TempData["Fejl"] = "Kun spejdere kan tilmelde sig aktiviteter";
                 return RedirectToPage(new { Vis });
             }
 
@@ -99,11 +102,16 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public IActionResult OnPostFrameld(int id)
         {
-            Spejder? spejder = HentIndloggetSpejder();
-            Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
-            if (spejder != null && aktivitet != null)
+            if (HttpContext.Session.GetString("Rolle") != "Spejder")
             {
-                _tilmeldingRepo.Frameld(spejder.Id, aktivitet.Id);
+                return RedirectToPage("/Login");
+            }
+
+            int spejderId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
+            Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
+            if (aktivitet != null)
+            {
+                _tilmeldingRepo.Frameld(spejderId, aktivitet.Id);
                 TempData["Besked"] = "Du er frameldt " + aktivitet.Navn;
             }
             return RedirectToPage(new { Vis });
@@ -111,10 +119,9 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public IActionResult OnPostSlet(int id)
         {
-            if (!(HttpContext.Session.GetString("Rolle") == "Leder"))
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
             {
-                TempData["Fejl"] = "Kun ledere kan slette aktiviteter";
-                return RedirectToPage(new { Vis });
+                return RedirectToPage("/Login");
             }
 
             Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
@@ -184,15 +191,6 @@ namespace DLS_Web.Pages.Aktiviteter
                 }
             }
             return tegn;
-        }
-
-        private Spejder? HentIndloggetSpejder()
-        {
-            if (!(HttpContext.Session.GetString("Rolle") == "Spejder"))
-            {
-                return null;
-            }
-            return _spejderRepo.HentEn((HttpContext.Session.GetInt32("BrugerId") ?? 0));
         }
     }
 }

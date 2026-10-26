@@ -1,7 +1,6 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Ledere
@@ -9,27 +8,14 @@ namespace DLS_Web.Pages.Ledere
     // Bruges både til at oprette (uden id) og rette (med id)
     public class RedigerModel : PageModel
     {
-        // Kun ledere har adgang til siden. Kører før OnGet/OnPost.
-        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
-        {
-            string? rolle = HttpContext.Session.GetString("Rolle");
-            if (rolle == null)
-            {
-                TempData["Fejl"] = "Du skal logge ind først";
-                context.Result = RedirectToPage("/Login");
-            }
-            else if (rolle != "Leder")
-            {
-                TempData["Fejl"] = "Den side er kun for ledere";
-                context.Result = RedirectToPage("/Index");
-            }
-        }
-
         private LederRepository _repo;
         private SpejderRepository _spejderRepo;
 
         [BindProperty]
         public Leder Leder { get; set; } = new Leder();
+
+        // Fejlbeskeder der vises over formularen
+        public List<string> Fejl { get; set; } = new List<string>();
 
         public bool ErNy
         {
@@ -44,6 +30,12 @@ namespace DLS_Web.Pages.Ledere
 
         public IActionResult OnGet(int? id)
         {
+            // Kun ledere må oprette og rette ledere
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
             if (id != null)
             {
                 Leder? leder = _repo.HentEn(id.Value);
@@ -58,10 +50,26 @@ namespace DLS_Web.Pages.Ledere
 
         public IActionResult OnPost()
         {
-            // Tomme felter kommer ind som null, så de laves om til ""
-            Leder.Navn = (Leder.Navn ?? "").Trim();
-            Leder.BrugerNavn = (Leder.BrugerNavn ?? "").Trim();
-            Leder.Adgangskode = Leder.Adgangskode ?? "";
+            if (HttpContext.Session.GetString("Rolle") != "Leder")
+            {
+                return RedirectToPage("/Login");
+            }
+
+            // Tomme tekstfelter kommer ind som null, så de laves om til ""
+            if (Leder.Navn == null)
+            {
+                Leder.Navn = "";
+            }
+            if (Leder.BrugerNavn == null)
+            {
+                Leder.BrugerNavn = "";
+            }
+            if (Leder.Adgangskode == null)
+            {
+                Leder.Adgangskode = "";
+            }
+            Leder.Navn = Leder.Navn.Trim();
+            Leder.BrugerNavn = Leder.BrugerNavn.Trim();
 
             // Lader man adgangskoden stå tom ved rettelse, beholdes den gamle
             Leder? gammel = _repo.HentEn(Leder.Id);
@@ -70,30 +78,25 @@ namespace DLS_Web.Pages.Ledere
                 Leder.Adgangskode = gammel.Adgangskode;
             }
 
+            // Tjek at felterne er udfyldt rigtigt
             if (Leder.Navn == "")
             {
-                ModelState.AddModelError("", "Skriv lederens navn");
+                Fejl.Add("Skriv lederens navn");
             }
             if (Leder.BrugerNavn == "")
             {
-                ModelState.AddModelError("", "Skriv et brugernavn");
+                Fejl.Add("Skriv et brugernavn");
             }
-            else
+            else if (BrugerNavnOptaget())
             {
-                // Brugernavnet må ikke bruges af en anden leder eller en spejder
-                bool optaget = _spejderRepo.HentAlle().Any(s => s.BrugerNavn.ToLower() == Leder.BrugerNavn.ToLower())
-                    || _repo.HentAlle().Any(l => l.Id != Leder.Id && l.BrugerNavn.ToLower() == Leder.BrugerNavn.ToLower());
-                if (optaget)
-                {
-                    ModelState.AddModelError("", "Brugernavnet \"" + Leder.BrugerNavn + "\" er allerede taget");
-                }
+                Fejl.Add("Brugernavnet \"" + Leder.BrugerNavn + "\" er allerede taget");
             }
             if (Leder.Adgangskode == "")
             {
-                ModelState.AddModelError("", "Skriv en adgangskode");
+                Fejl.Add("Skriv en adgangskode");
             }
 
-            if (!ModelState.IsValid)
+            if (Fejl.Count > 0)
             {
                 return Page();
             }
@@ -109,6 +112,27 @@ namespace DLS_Web.Pages.Ledere
                 TempData["Besked"] = Leder.Navn + " er gemt";
             }
             return RedirectToPage("Index");
+        }
+
+        // Brugernavnet må ikke bruges af en anden leder eller en spejder
+        private bool BrugerNavnOptaget()
+        {
+            string navn = Leder.BrugerNavn.ToLower();
+            foreach (Leder l in _repo.HentAlle())
+            {
+                if (l.Id != Leder.Id && l.BrugerNavn.ToLower() == navn)
+                {
+                    return true;
+                }
+            }
+            foreach (Spejder s in _spejderRepo.HentAlle())
+            {
+                if (s.BrugerNavn.ToLower() == navn)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
