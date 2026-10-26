@@ -1,5 +1,4 @@
-﻿CREATE Table eprbilhn (
-	id INT PRIMARY KEY,
-	name VARCHAR(100),
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+﻿INSERT INTO Aktivitet
+          (Navn, Tidspunkt, MaksDeltagere, MinAlder, Sted, Beskrivelse)
+          VALUES
+          ('Jacob', '2026-10-27 ', 10, 5, 'Bål', 'mad over bål')
