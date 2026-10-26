@@ -1,66 +1,122 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using Microsoft.Data.SqlClient;
 using DLS_Lib.UserStories;
 
 namespace DLS_Lib.Repository
 {
     public class TegnRepository
     {
-        // Listen med alle tegn
-        private List<Tegn> _tegn = new List<Tegn>();
+        private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // Næste Id der bliver givet ud
-        private int _næsteId = 1;
-
-        public List<Tegn> HentAlle()
-        {
-            return _tegn;
-        }
-
-        // Giver tegnet et Id og gemmer det
+        // CREATE
         public void Opret(Tegn tegn)
         {
-            tegn.Id = _næsteId;
-            _næsteId++;
-            _tegn.Add(tegn);
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                @"INSERT INTO Tegn (Navn)
+                  VALUES (@navn)",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@navn", tegn.Navn);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
         }
 
-        // Finder ét tegn ud fra Id (null hvis det ikke findes)
+        // READ - hent alle tegn
+        public List<Tegn> HentAlle()
+        {
+            List<Tegn> tegnListe = new List<Tegn>();
+
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "SELECT * FROM Tegn",
+                db.forbind);
+
+            var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Tegn tegn = new Tegn
+                {
+                    Id = reader.GetInt32(0),
+                    Navn = reader.GetString(1)
+                };
+
+                tegnListe.Add(tegn);
+            }
+
+            reader.Close();
+            db.LukForbindelse();
+
+            return tegnListe;
+        }
+
+        // READ - hent ét tegn
         public Tegn? HentEn(int id)
         {
-            foreach (Tegn t in _tegn)
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "SELECT * FROM Tegn WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", id);
+
+            var reader = command.ExecuteReader();
+
+            Tegn? tegn = null;
+
+            if (reader.Read())
             {
-                if (t.Id == id)
+                tegn = new Tegn
                 {
-                    return t;
-                }
+                    Id = reader.GetInt32(0),
+                    Navn = reader.GetString(1)
+                };
             }
-            return null;
+
+            reader.Close();
+            db.LukForbindelse();
+
+            return tegn;
         }
 
-        public void Slet(int id)
-        {
-            foreach (Tegn t in _tegn)
-            {
-                if (t.Id == id)
-                {
-                    _tegn.Remove(t);
-                    return; // stop løkken, ellers giver Remove en fejl
-                }
-            }
-        }
-
+        // UPDATE
         public void Opdater(Tegn tegn)
         {
-            foreach (Tegn t in _tegn)
-            {
-                if (t.Id == tegn.Id)
-                {
-                    t.Navn = tegn.Navn;
-                    return;
-                }
-            }
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                @"UPDATE Tegn
+                  SET Navn = @navn
+                  WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", tegn.Id);
+            command.Parameters.AddWithValue("@navn", tegn.Navn);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
+        }
+
+        // DELETE
+        public void Slet(int id)
+        {
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "DELETE FROM Tegn WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", id);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
         }
     }
 }
+

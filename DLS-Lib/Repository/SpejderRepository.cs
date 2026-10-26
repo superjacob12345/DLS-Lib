@@ -1,70 +1,139 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using Microsoft.Data.SqlClient;
 using DLS_Lib.UserStories;
 
 namespace DLS_Lib.Repository
 {
     public class SpejderRepository
     {
-        // Listen med alle spejdere
-        private List<Spejder> _spejdere = new List<Spejder>();
+        private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // Næste Id der bliver givet ud
-        private int _næsteId = 1;
-
-        public List<Spejder> HentAlle()
-        {
-            return _spejdere;
-        }
-
-        // Giver spejderen et Id og gemmer den
+        // CREATE
         public void Opret(Spejder spejder)
         {
-            spejder.Id = _næsteId;
-            _næsteId++;
-            _spejdere.Add(spejder);
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                @"INSERT INTO Spejder
+                  (Navn, BrugerNavn, Adgangskode, Foedselsdato)
+                  VALUES
+                  (@navn, @brugerNavn, @adgangskode, @foedselsdato)",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@navn", spejder.Navn);
+            command.Parameters.AddWithValue("@brugerNavn", spejder.BrugerNavn);
+            command.Parameters.AddWithValue("@adgangskode", spejder.Adgangskode);
+            command.Parameters.AddWithValue("@foedselsdato", spejder.Foedselsdato);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
         }
 
-        // Finder en spejder ud fra Id (null hvis den ikke findes)
+        // READ - hent alle spejdere
+        public List<Spejder> HentAlle()
+        {
+            List<Spejder> spejdere = new List<Spejder>();
+
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "SELECT * FROM Spejder",
+                db.forbind);
+
+            var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Spejder spejder = new Spejder
+                {
+                    Id = reader.GetInt32(0),
+                    Navn = reader.GetString(1),
+                    BrugerNavn = reader.GetString(2),
+                    Adgangskode = reader.GetString(3),
+                    Foedselsdato = DateOnly.FromDateTime(reader.GetDateTime(4))
+                };
+
+                spejdere.Add(spejder);
+            }
+
+            reader.Close();
+            db.LukForbindelse();
+
+            return spejdere;
+        }
+
+        // READ - hent én spejder
         public Spejder? HentEn(int id)
         {
-            foreach (Spejder s in _spejdere)
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "SELECT * FROM Spejder WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", id);
+
+            var reader = command.ExecuteReader();
+
+            Spejder? spejder = null;
+
+            if (reader.Read())
             {
-                if (s.Id == id)
+                spejder = new Spejder
                 {
-                    return s;
-                }
+                    Id = reader.GetInt32(0),
+                    Navn = reader.GetString(1),
+                    BrugerNavn = reader.GetString(2),
+                    Adgangskode = reader.GetString(3),
+                    Foedselsdato = DateOnly.FromDateTime(reader.GetDateTime(4))
+                };
             }
-            return null;
+
+            reader.Close();
+            db.LukForbindelse();
+
+            return spejder;
         }
 
-        public void Slet(int id)
-        {
-            foreach (Spejder s in _spejdere)
-            {
-                if (s.Id == id)
-                {
-                    _spejdere.Remove(s);
-                    return; // stop løkken, ellers giver Remove en fejl
-                }
-            }
-        }
-
+        // UPDATE
         public void Opdater(Spejder spejder)
         {
-            foreach (Spejder s in _spejdere)
-            {
-                if (s.Id == spejder.Id)
-                {
-                    s.Navn = spejder.Navn;
-                    s.BrugerNavn = spejder.BrugerNavn;
-                    s.Adgangskode = spejder.Adgangskode;
-                    s.Foedselsdato = spejder.Foedselsdato;
-                    s.TegnIds = spejder.TegnIds;
-                    return;
-                }
-            }
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                @"UPDATE Spejder
+                  SET Navn = @navn,
+                      BrugerNavn = @brugerNavn,
+                      Adgangskode = @adgangskode,
+                      Foedselsdato = @foedselsdato
+                  WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", spejder.Id);
+            command.Parameters.AddWithValue("@navn", spejder.Navn);
+            command.Parameters.AddWithValue("@brugerNavn", spejder.BrugerNavn);
+            command.Parameters.AddWithValue("@adgangskode", spejder.Adgangskode);
+            command.Parameters.AddWithValue("@foedselsdato", spejder.Foedselsdato);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
+        }
+
+        // DELETE
+        public void Slet(int id)
+        {
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "DELETE FROM Spejder WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", id);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
         }
     }
 }
+

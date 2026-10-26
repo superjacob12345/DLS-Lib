@@ -1,68 +1,132 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Data;
+using Microsoft.Data.SqlClient;
 using DLS_Lib.UserStories;
 
 namespace DLS_Lib.Repository
 {
     public class LederRepository
     {
-        // Listen med alle ledere
-        private List<Leder> _ledere = new List<Leder>();
+        private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // Næste Id der bliver givet 
-        private int _næsteId = 1;
-
-        public List<Leder> HentAlle()
-        {
-            return _ledere;
-        }
-
-        // Giver lederen et Id og gemmer den
+        // CREATE
         public void Opret(Leder leder)
         {
-            leder.Id = _næsteId;
-            _næsteId++;
-            _ledere.Add(leder);
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                @"INSERT INTO Leder (Navn, BrugerNavn, Adgangskode)
+                  VALUES (@navn, @brugerNavn, @adgangskode)",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@navn", leder.Navn);
+            command.Parameters.AddWithValue("@brugerNavn", leder.BrugerNavn);
+            command.Parameters.AddWithValue("@adgangskode", leder.Adgangskode);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
         }
 
-        // Finder en leder ud fra Id (null hvis den ikke findes)
+        // READ - hent alle ledere
+        public List<Leder> HentAlle()
+        {
+            List<Leder> ledere = new List<Leder>();
+
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "SELECT * FROM Leder",
+                db.forbind);
+
+            var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Leder leder = new Leder
+                {
+                    Id = reader.GetInt32(0),
+                    Navn = reader.GetString(1),
+                    BrugerNavn = reader.GetString(2),
+                    Adgangskode = reader.GetString(3)
+                };
+
+                ledere.Add(leder);
+            }
+
+            reader.Close();
+            db.LukForbindelse();
+
+            return ledere;
+        }
+
+        // READ - hent én leder
         public Leder? HentEn(int id)
         {
-            foreach (Leder l in _ledere)
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "SELECT * FROM Leder WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", id);
+
+            var reader = command.ExecuteReader();
+
+            Leder? leder = null;
+
+            if (reader.Read())
             {
-                if (l.Id == id)
+                leder = new Leder
                 {
-                    return l;
-                }
+                    Id = reader.GetInt32(0),
+                    Navn = reader.GetString(1),
+                    BrugerNavn = reader.GetString(2),
+                    Adgangskode = reader.GetString(3)
+                };
             }
-            return null;
+
+            reader.Close();
+            db.LukForbindelse();
+
+            return leder;
         }
 
-        public void Slet(int id)
-        {
-            foreach (Leder l in _ledere)
-            {
-                if (l.Id == id)
-                {
-                    _ledere.Remove(l);
-                    return; // stop løkken, ellers giver Remove en fejl
-                }
-            }
-        }
-
+        // UPDATE
         public void Opdater(Leder leder)
         {
-            foreach (Leder l in _ledere)
-            {
-                if (l.Id == leder.Id)
-                {
-                    l.Navn = leder.Navn;
-                    l.BrugerNavn = leder.BrugerNavn;
-                    l.Adgangskode = leder.Adgangskode;
-                    return;
-                }
-            }
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                @"UPDATE Leder
+                  SET Navn = @navn,
+                      BrugerNavn = @brugerNavn,
+                      Adgangskode = @adgangskode
+                  WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", leder.Id);
+            command.Parameters.AddWithValue("@navn", leder.Navn);
+            command.Parameters.AddWithValue("@brugerNavn", leder.BrugerNavn);
+            command.Parameters.AddWithValue("@adgangskode", leder.Adgangskode);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
+        }
+
+        // DELETE
+        public void Slet(int id)
+        {
+            db.OpretForbindelse();
+
+            var command = new SqlCommand(
+                "DELETE FROM Leder WHERE Id = @id",
+                db.forbind);
+
+            command.Parameters.AddWithValue("@id", id);
+
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
         }
     }
 }
