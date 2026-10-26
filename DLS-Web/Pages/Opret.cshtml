@@ -1,0 +1,65 @@
+@page
+@model DLS_Web.Pages.OpretModel
+@{
+    ViewData["Title"] = "Opret bruger";
+}
+
+<div class="login-boks">
+    <div class="panel p-4 p-md-5">
+        <div class="text-center mb-4">
+            <div class="brand-ikon">⚜</div>
+            <h1 class="h3 mb-1">Opret bruger</h1>
+            <p class="text-secondary mb-0">Opret dig som spejder eller leder på landslejren</p>
+        </div>
+
+        @if (Model.Fejl.Count > 0)
+        {
+            <div class="alert alert-danger besked">
+                @foreach (string fejl in Model.Fejl)
+                {
+                    <div>@fejl</div>
+                }
+            </div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <span class="form-label d-block">Jeg er</span>
+                <div class="valg-liste">
+                    <div class="valg">
+                        <input type="radio" name="Rolle" value="Spejder" id="rolle-spejder" checked="@(Model.Rolle == "Spejder")" />
+                        <label for="rolle-spejder">Spejder</label>
+                    </div>
+                    <div class="valg">
+                        <input type="radio" name="Rolle" value="Leder" id="rolle-leder" checked="@(Model.Rolle == "Leder")" />
+                        <label for="rolle-leder">Leder</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Navn" class="form-label">Navn</label>
+                <input asp-for="Navn" class="form-control" autocomplete="name" required />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Foedselsdato" class="form-label">Fødselsdato</label>
+                <input asp-for="Foedselsdato" type="date" class="form-control" />
+                <div class="form-tekst mt-1">Kun for spejdere. Bruges til at tjekke alderskrav på aktiviteter.</div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="BrugerNavn" class="form-label">Brugernavn</label>
+                <input asp-for="BrugerNavn" class="form-control" autocomplete="username" required />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Adgangskode" class="form-label">Adgangskode</label>
+                <input asp-for="Adgangskode" type="password" class="form-control" autocomplete="new-password" required />
+            </div>
+            <div class="mb-4">
+                <label asp-for="GentagAdgangskode" class="form-label">Gentag adgangskode</label>
+                <input asp-for="GentagAdgangskode" type="password" class="form-control" autocomplete="new-password" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2">Opret bruger</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">Har du allerede en bruger? <a asp-page="/Login">Log ind</a></p>
+    </div>
+</div>

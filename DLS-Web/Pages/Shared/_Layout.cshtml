@@ -42,7 +42,10 @@
                     </ul>
                     @if (rolle == null)
                     {
-                        <a class="btn btn-primary" asp-page="/Login">Log ind</a>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-outline-primary" asp-page="/Opret">Opret bruger</a>
+                            <a class="btn btn-primary" asp-page="/Login">Log ind</a>
+                        </div>
                     }
                     else
                     {
