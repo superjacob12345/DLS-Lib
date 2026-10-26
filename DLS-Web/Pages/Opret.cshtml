@@ -9,7 +9,7 @@
         <div class="text-center mb-4">
             <div class="brand-ikon">⚜</div>
             <h1 class="h3 mb-1">Opret bruger</h1>
-            <p class="text-secondary mb-0">Opret dig som spejder eller leder på landslejren</p>
+            <p class="text-secondary mb-0">Opret dig som spejder på landslejren</p>
         </div>
 
         @if (Model.Fejl.Count > 0)
@@ -24,26 +24,13 @@
 
         <form method="post">
             <div class="mb-3">
-                <span class="form-label d-block">Jeg er</span>
-                <div class="valg-liste">
-                    <div class="valg">
-                        <input type="radio" name="Rolle" value="Spejder" id="rolle-spejder" checked="@(Model.Rolle == "Spejder")" />
-                        <label for="rolle-spejder">Spejder</label>
-                    </div>
-                    <div class="valg">
-                        <input type="radio" name="Rolle" value="Leder" id="rolle-leder" checked="@(Model.Rolle == "Leder")" />
-                        <label for="rolle-leder">Leder</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
                 <label asp-for="Navn" class="form-label">Navn</label>
                 <input asp-for="Navn" class="form-control" autocomplete="name" required />
             </div>
             <div class="mb-3">
                 <label asp-for="Foedselsdato" class="form-label">Fødselsdato</label>
-                <input asp-for="Foedselsdato" type="date" class="form-control" />
-                <div class="form-tekst mt-1">Kun for spejdere. Bruges til at tjekke alderskrav på aktiviteter.</div>
+                <input asp-for="Foedselsdato" type="date" class="form-control" required />
+                <div class="form-tekst mt-1">Bruges til at tjekke alderskrav på aktiviteter.</div>
             </div>
             <div class="mb-3">
                 <label asp-for="BrugerNavn" class="form-label">Brugernavn</label>
@@ -61,5 +48,6 @@
         </form>
 
         <p class="text-center mt-3 mb-0">Har du allerede en bruger? <a asp-page="/Login">Log ind</a></p>
+        <p class="form-tekst text-center mt-2 mb-0">Er du leder? Så skal en anden leder oprette dig.</p>
     </div>
 </div>

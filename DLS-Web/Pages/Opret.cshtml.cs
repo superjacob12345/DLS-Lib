@@ -5,15 +5,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages
 {
-    // Her kan man selv oprette sig som spejder eller leder
+    // Her kan man selv oprette sig som spejder.
+    // Nye ledere kan kun oprettes af en leder (under Ledere).
     public class OpretModel : PageModel
     {
         private SpejderRepository _spejderRepo;
         private LederRepository _lederRepo;
-
-        // "Spejder" eller "Leder"
-        [BindProperty]
-        public string Rolle { get; set; } = "Spejder";
 
         [BindProperty]
         public string Navn { get; set; } = "";
@@ -27,7 +24,6 @@ namespace DLS_Web.Pages
         [BindProperty]
         public string GentagAdgangskode { get; set; } = "";
 
-        // Kun spejdere skal udfylde fødselsdato
         [BindProperty]
         public DateOnly Foedselsdato { get; set; }
 
@@ -75,10 +71,6 @@ namespace DLS_Web.Pages
             BrugerNavn = BrugerNavn.Trim();
 
             // Tjek at felterne er udfyldt rigtigt
-            if (Rolle != "Spejder" && Rolle != "Leder")
-            {
-                Fejl.Add("Vælg om du er spejder eller leder");
-            }
             if (Navn == "")
             {
                 Fejl.Add("Skriv dit navn");
@@ -99,7 +91,7 @@ namespace DLS_Web.Pages
             {
                 Fejl.Add("De to adgangskoder er ikke ens");
             }
-            if (Rolle == "Spejder" && Foedselsdato > DateOnly.FromDateTime(DateTime.Today))
+            if (Foedselsdato > DateOnly.FromDateTime(DateTime.Today))
             {
                 Fejl.Add("Fødselsdatoen kan ikke ligge i fremtiden");
             }
@@ -109,21 +101,12 @@ namespace DLS_Web.Pages
                 return Page();
             }
 
-            // Opret brugeren og log den ind med det samme
-            if (Rolle == "Spejder")
-            {
-                Spejder spejder = new Spejder(0, Navn, BrugerNavn, Adgangskode, Foedselsdato);
-                _spejderRepo.Opret(spejder);
-                HttpContext.Session.SetInt32("BrugerId", spejder.Id);
-            }
-            else
-            {
-                Leder leder = new Leder(Navn, BrugerNavn, Adgangskode);
-                _lederRepo.Opret(leder);
-                HttpContext.Session.SetInt32("BrugerId", leder.Id);
-            }
-            HttpContext.Session.SetString("Navn", Navn);
-            HttpContext.Session.SetString("Rolle", Rolle);
+            // Opret spejderen og log den ind med det samme
+            Spejder spejder = new Spejder(0, Navn, BrugerNavn, Adgangskode, Foedselsdato);
+            _spejderRepo.Opret(spejder);
+            HttpContext.Session.SetInt32("BrugerId", spejder.Id);
+            HttpContext.Session.SetString("Navn", spejder.Navn);
+            HttpContext.Session.SetString("Rolle", "Spejder");
 
             TempData["Besked"] = "Velkommen, " + Navn + ". Din bruger er oprettet";
             return RedirectToPage("/Aktiviteter/Index");
