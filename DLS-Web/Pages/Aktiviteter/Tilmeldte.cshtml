@@ -2,68 +2,44 @@
 @model DLS_Web.Pages.Aktiviteter.TilmeldteModel
 @{
     ViewData["Title"] = "Tilmeldte";
-    int antal = Model.Tilmeldinger.Count;
 }
 
-<a asp-page="Index" class="tilbage">← Tilbage til aktiviteter</a>
+<h1>Tilmeldte til @Model.Aktivitet.Navn</h1>
+<p>@Model.Tilmeldinger.Count ud af @Model.Aktivitet.MaksDeltagere pladser er taget.</p>
 
-<div class="side-top">
-    <div>
-        <h1>@Model.Aktivitet.Navn</h1>
-        <p>@Model.Aktivitet.Tidspunkt.ToString("ddd d. MMM 'kl.' HH:mm") · 📍 @Model.Aktivitet.Sted</p>
-    </div>
-    <div class="text-end">
-        <div class="tal">@antal<span class="fs-5 text-secondary"> / @Model.Aktivitet.MaksDeltagere</span></div>
-        <div class="tal-tekst">tilmeldte</div>
-    </div>
-</div>
-
-@if (antal == 0)
+@if (Model.Tilmeldinger.Count == 0)
 {
-    <div class="panel tom">
-        <span class="tom-ikon">🙋</span>
-        <p class="mb-0">Ingen spejdere er tilmeldt endnu.</p>
-    </div>
+    <p>Ingen spejdere er tilmeldt endnu.</p>
 }
 else
 {
-    <div class="panel tabel-panel">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Spejder</th>
-                        <th>Alder</th>
-                        <th>Tegn</th>
-                        <th>Tilmeldt</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var t in Model.Tilmeldinger)
-                    {
-                        Spejder? s = Model.HentSpejder(t.SpejderId);
-                        if (s == null)
-                        {
-                            continue;
-                        }
-                        <tr>
-                            <td class="fw-bold">@s.Navn</td>
-                            <td>@s.Alder år</td>
-                            <td>@Model.TegnNavne(s)</td>
-                            <td>@t.Dato.ToString("d. MMMM yyyy")</td>
-                            <td>
-                                <div class="handlinger">
-                                    <form method="post" asp-page-handler="Fjern" asp-route-id="@Model.Aktivitet.Id" asp-route-spejderId="@s.Id">
-                                        <button type="submit" class="btn btn-fare btn-sm">Fjern</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <table class="table">
+        <tr>
+            <th>Navn</th>
+            <th>Alder</th>
+            <th>Tegn</th>
+            <th>Tilmeldt den</th>
+            <th></th>
+        </tr>
+        @foreach (Tilmelding t in Model.Tilmeldinger)
+        {
+            Spejder? s = Model.HentSpejder(t.SpejderId);
+            if (s != null)
+            {
+                <tr>
+                    <td>@s.Navn</td>
+                    <td>@s.Alder år</td>
+                    <td>@Model.TegnNavne(s)</td>
+                    <td>@t.Dato.ToString("dd-MM-yyyy")</td>
+                    <td>
+                        <form method="post" asp-page-handler="Fjern" asp-route-id="@Model.Aktivitet.Id" asp-route-spejderId="@s.Id">
+                            <button type="submit" class="btn btn-danger btn-sm">Fjern</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </table>
 }
- 
+
+<a asp-page="Index" class="btn btn-secondary">Tilbage</a>

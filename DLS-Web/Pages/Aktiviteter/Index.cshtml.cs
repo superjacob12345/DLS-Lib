@@ -47,8 +47,11 @@ namespace DLS_Web.Pages.Aktiviteter
             }
 
             int brugerId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
-            ErLeder = rolle == "Leder";
-            if (!ErLeder)
+            if (rolle == "Leder")
+            {
+                ErLeder = true;
+            }
+            else
             {
                 MigSelv = _spejderRepo.HentEn(brugerId);
             }
@@ -85,7 +88,7 @@ namespace DLS_Web.Pages.Aktiviteter
             Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
             if (spejder == null || aktivitet == null)
             {
-                return RedirectToPage(new { Vis });
+                return RedirectToPage();
             }
 
             string fejl = _tilmeldingRepo.Tilmeld(spejder, aktivitet);
@@ -97,7 +100,7 @@ namespace DLS_Web.Pages.Aktiviteter
             {
                 TempData["Fejl"] = fejl;
             }
-            return RedirectToPage(new { Vis });
+            return RedirectToPage();
         }
 
         public IActionResult OnPostFrameld(int id)
@@ -108,13 +111,9 @@ namespace DLS_Web.Pages.Aktiviteter
             }
 
             int spejderId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
-            Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
-            if (aktivitet != null)
-            {
-                _tilmeldingRepo.Frameld(spejderId, aktivitet.Id);
-                TempData["Besked"] = "Du er frameldt " + aktivitet.Navn;
-            }
-            return RedirectToPage(new { Vis });
+            _tilmeldingRepo.Frameld(spejderId, id);
+            TempData["Besked"] = "Du er frameldt aktiviteten";
+            return RedirectToPage();
         }
 
         public IActionResult OnPostSlet(int id)
@@ -124,15 +123,11 @@ namespace DLS_Web.Pages.Aktiviteter
                 return RedirectToPage("/Login");
             }
 
-            Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
-            if (aktivitet != null)
-            {
-                // Tilmeldingerne skal også væk, ellers peger de på en aktivitet der ikke findes
-                _tilmeldingRepo.SletForAktivitet(id);
-                _aktivitetRepo.Slet(id);
-                TempData["Besked"] = aktivitet.Navn + " er nedlagt";
-            }
-            return RedirectToPage(new { Vis });
+            // Tilmeldingerne skal også væk, ellers peger de på en aktivitet der ikke findes
+            _tilmeldingRepo.SletForAktivitet(id);
+            _aktivitetRepo.Slet(id);
+            TempData["Besked"] = "Aktiviteten er slettet";
+            return RedirectToPage();
         }
 
         // ===== Hjælpemetoder som bruges i .cshtml =====
@@ -163,34 +158,42 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public string LederNavne(Aktivitet aktivitet)
         {
-            List<string> navne = new List<string>();
+            string navne = "";
             foreach (int id in aktivitet.LederIds)
             {
                 Leder? l = _lederRepo.HentEn(id);
                 if (l != null)
                 {
-                    navne.Add(l.Navn);
+                    if (navne != "")
+                    {
+                        navne += ", ";
+                    }
+                    navne += l.Navn;
                 }
             }
-            if (navne.Count == 0)
-            {
-                return "Ingen leder endnu";
-            }
-            return string.Join(", ", navne);
+            return navne;
         }
 
-        public List<Tegn> KraevedeTegn(Aktivitet aktivitet)
+        public string TegnNavne(Aktivitet aktivitet)
         {
-            List<Tegn> tegn = new List<Tegn>();
+            string navne = "";
             foreach (int id in aktivitet.KraevedeTegnIds)
             {
                 Tegn? t = _tegnRepo.HentEn(id);
                 if (t != null)
                 {
-                    tegn.Add(t);
+                    if (navne != "")
+                    {
+                        navne += ", ";
+                    }
+                    navne += t.Navn;
                 }
             }
-            return tegn;
+            if (navne == "")
+            {
+                return "Ingen";
+            }
+            return navne;
         }
     }
 }

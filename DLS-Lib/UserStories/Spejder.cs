@@ -15,9 +15,8 @@ namespace DLS_Lib.UserStories
 
         public Spejder() { }
 
-        public Spejder(int id, string navn, string brugerNavn, string adgangskode, DateOnly foeselsdag)
+        public Spejder(string navn, string brugerNavn, string adgangskode, DateOnly foeselsdag)
         {
-            _id = id;
             _navn = navn;
             _brugerNavn = brugerNavn;
             _adgangskode = adgangskode;

@@ -1,8 +1,6 @@
 ﻿@{
     string? rolle = Context.Session.GetString("Rolle");
-    string navn = Context.Session.GetString("Navn") ?? "";
-    // Den side man står på, så menupunktet kan markeres
-    string side = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    string? navn = Context.Session.GetString("Navn");
 }
 <!DOCTYPE html>
 <html lang="da">
@@ -10,78 +8,64 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - De Lyserøde Spejdere</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand topbar">
-            <div class="container flex-wrap gap-2">
-                <a class="navbar-brand brand" asp-page="/Index">
-                    <span class="brand-ikon">⚜</span>
-                    <span>De Lyserøde Spejdere<small>Landslejr Hedeland</small></span>
-                </a>
-                <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
-                    <ul class="navbar-nav flex-wrap me-auto">
-                        @if (rolle != null)
-                        {
-                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Aktiviteter") ? "active" : "")" asp-page="/Aktiviteter/Index">Aktiviteter</a></li>
-                        }
-                        @if (rolle == "Spejder")
-                        {
-                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/MineAktiviteter") ? "active" : "")" asp-page="/MineAktiviteter">Mine aktiviteter</a></li>
-                        }
-                        @if (rolle == "Leder")
-                        {
-                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Spejdere") ? "active" : "")" asp-page="/Spejdere/Index">Spejdere</a></li>
-                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Ledere") ? "active" : "")" asp-page="/Ledere/Index">Ledere</a></li>
-                            <li class="nav-item"><a class="nav-link @(side.StartsWith("/Tegnene") ? "active" : "")" asp-page="/Tegnene/Index">Tegn</a></li>
-                        }
-                    </ul>
-                    @if (rolle == null)
+        <nav class="navbar navbar-expand mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-page="/Index">De Lyserøde Spejdere</a>
+                <ul class="navbar-nav me-auto">
+                    @if (rolle != null)
                     {
-                        <div class="d-flex gap-2">
-                            <a class="btn btn-outline-primary" asp-page="/Opret">Opret bruger</a>
-                            <a class="btn btn-primary" asp-page="/Login">Log ind</a>
-                        </div>
+                        <li class="nav-item"><a class="nav-link" asp-page="/Aktiviteter/Index">Aktiviteter</a></li>
                     }
-                    else
+                    @if (rolle == "Spejder")
                     {
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="bruger-chip">
-                                <span class="bruger-avatar">@navn.Substring(0, 1)</span>
-                                <span>@navn <small>@rolle</small></span>
-                            </span>
-                            <form method="post" asp-page="/Logout">
-                                <button type="submit" class="btn btn-outline-primary btn-sm">Log ud</button>
-                            </form>
-                        </div>
+                        <li class="nav-item"><a class="nav-link" asp-page="/MineAktiviteter">Mine aktiviteter</a></li>
                     }
-                </div>
+                    @if (rolle == "Leder")
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-page="/Spejdere/Index">Spejdere</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-page="/Ledere/Index">Ledere</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-page="/Tegnene/Index">Tegn</a></li>
+                    }
+                </ul>
+                @if (rolle == null)
+                {
+                    <a class="nav-link me-3" asp-page="/Opret">Opret bruger</a>
+                    <a class="btn btn-light btn-sm" asp-page="/Login">Log ind</a>
+                }
+                else
+                {
+                    <span class="me-3">@navn (@rolle)</span>
+                    <form method="post" asp-page="/Logout">
+                        <button type="submit" class="btn btn-light btn-sm">Log ud</button>
+                    </form>
+                }
             </div>
         </nav>
     </header>
 
-    <main class="container py-4 flex-grow-1">
-        @if (TempData["Besked"] != null)
-        {
-            <div class="alert alert-success besked" role="status">✓ @TempData["Besked"]</div>
-        }
-        @if (TempData["Fejl"] != null)
-        {
-            <div class="alert alert-danger besked" role="alert">@TempData["Fejl"]</div>
-        }
-        @RenderBody()
-    </main>
+    <div class="container">
+        <main class="pb-3">
+            @if (TempData["Besked"] != null)
+            {
+                <div class="alert alert-success">@TempData["Besked"]</div>
+            }
+            @if (TempData["Fejl"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Fejl"]</div>
+            }
+            @RenderBody()
+        </main>
+    </div>
 
-    <footer class="sidefod">
-        <div class="container d-flex flex-wrap justify-content-between gap-2">
-            <span>⚜ De Lyserøde Spejdere · Landslejr i Hedeland ved Roskilde</span>
-            <span>&copy; 2026</span>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - De Lyserøde Spejdere
         </div>
     </footer>
-
 </body>
 </html>

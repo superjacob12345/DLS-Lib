@@ -4,42 +4,31 @@
     ViewData["Title"] = "Log ind";
 }
 
-<div class="login-boks">
-    <div class="panel p-4 p-md-5">
-        <div class="text-center mb-4">
-            <div class="brand-ikon">⚜</div>
-            <h1 class="h3 mb-1">Log ind</h1>
-            <p class="text-secondary mb-0">For spejdere og ledere på landslejren</p>
+<h1>Log ind</h1>
+
+<div class="col-md-4">
+    @if (Model.Fejl != "")
+    {
+        <div class="alert alert-danger">@Model.Fejl</div>
+    }
+
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="BrugerNavn" class="form-label">Brugernavn</label>
+            <input asp-for="BrugerNavn" class="form-control" required />
         </div>
+        <div class="mb-3">
+            <label asp-for="Adgangskode" class="form-label">Adgangskode</label>
+            <input asp-for="Adgangskode" type="password" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Log ind</button>
+    </form>
 
-        @if (Model.Fejl != "")
-        {
-            <div class="alert alert-danger besked">@Model.Fejl</div>
-        }
+    <p class="mt-3">Har du ikke en bruger? <a asp-page="/Opret">Opret dig her</a></p>
 
-        <form method="post">
-            <div class="mb-3">
-                <label asp-for="BrugerNavn" class="form-label">Brugernavn</label>
-                <input asp-for="BrugerNavn" class="form-control" autocomplete="username" required autofocus />
-            </div>
-            <div class="mb-4">
-                <label asp-for="Adgangskode" class="form-label">Adgangskode</label>
-                <input asp-for="Adgangskode" type="password" class="form-control" autocomplete="current-password" required />
-            </div>
-            <button type="submit" class="btn btn-primary w-100 py-2">Log ind</button>
-        </form>
-
-        <p class="text-center mt-3 mb-0">Har du ikke en bruger? <a asp-page="/Opret">Opret dig her</a></p>
-    </div>
-
-    <div class="panel mt-3">
-        <h2 class="h6 mb-2">Prøv med en testbruger</h2>
-        <p class="form-tekst mb-2">Alle har adgangskoden <strong>1234</strong></p>
-        <table class="demo-tabel small w-100">
-            <tr><td><strong>mette</strong></td><td>Leder</td></tr>
-            <tr><td><strong>ida</strong></td><td>Spejder, 12 år, tegn: Bålmester, Svømmer</td></tr>
-            <tr><td><strong>noah</strong></td><td>Spejder, 15 år, må tage på kanotur</td></tr>
-            <tr><td><strong>oliver</strong></td><td>Spejder, 9 år, ingen tegn</td></tr>
-        </table>
-    </div>
+    <p class="text-muted">
+        Testbrugere (kode 1234):<br />
+        Leder: mette<br />
+        Spejdere: ida, noah, oliver
+    </p>
 </div>

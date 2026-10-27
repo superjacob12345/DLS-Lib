@@ -8,24 +8,13 @@ namespace DLS_Web.Pages
     public class IndexModel : PageModel
     {
         private AktivitetRepository _aktivitetRepo;
-        private SpejderRepository _spejderRepo;
-        private TilmeldingRepository _tilmeldingRepo;
 
-        // De næste aktiviteter der vises som "program"
+        // De næste aktiviteter der vises på forsiden
         public List<Aktivitet> Kommende { get; set; } = new List<Aktivitet>();
 
-        public int AntalAktiviteter { get; set; }
-        public int AntalSpejdere { get; set; }
-        public int AntalTilmeldinger { get; set; }
-
-        // Hvor mange aktiviteter den indloggede spejder er tilmeldt
-        public int MineTilmeldinger { get; set; }
-
-        public IndexModel(AktivitetRepository aktivitetRepo, SpejderRepository spejderRepo, TilmeldingRepository tilmeldingRepo)
+        public IndexModel(AktivitetRepository aktivitetRepo)
         {
             _aktivitetRepo = aktivitetRepo;
-            _spejderRepo = spejderRepo;
-            _tilmeldingRepo = tilmeldingRepo;
         }
 
         public void OnGet()
@@ -38,16 +27,6 @@ namespace DLS_Web.Pages
                 {
                     Kommende.Add(a);
                 }
-            }
-
-            AntalAktiviteter = _aktivitetRepo.HentAlle().Count;
-            AntalSpejdere = _spejderRepo.HentAlle().Count;
-            AntalTilmeldinger = _tilmeldingRepo.HentAlle().Count;
-
-            if (HttpContext.Session.GetString("Rolle") == "Spejder")
-            {
-                int spejderId = HttpContext.Session.GetInt32("BrugerId") ?? 0;
-                MineTilmeldinger = _tilmeldingRepo.HentForSpejder(spejderId).Count;
             }
         }
     }

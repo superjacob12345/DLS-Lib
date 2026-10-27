@@ -102,7 +102,7 @@ namespace DLS_Web.Pages
             }
 
             // Opret spejderen og log den ind med det samme
-            Spejder spejder = new Spejder(0, Navn, BrugerNavn, Adgangskode, Foedselsdato);
+            Spejder spejder = new Spejder(Navn, BrugerNavn, Adgangskode, Foedselsdato);
             _spejderRepo.Opret(spejder);
             HttpContext.Session.SetInt32("BrugerId", spejder.Id);
             HttpContext.Session.SetString("Navn", spejder.Navn);

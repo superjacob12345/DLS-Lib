@@ -87,4 +87,58 @@ CREATE TABLE Tilmelding
 );
 GO
 
--- Eksempeldata indsættes af programmet første gang det startes (se Program.cs)
+-- ===== Testdata =====
+-- Alle brugere har adgangskoden 1234
+
+INSERT INTO Tegn (Navn) VALUES
+(N'Førstehjælp'),   -- 1
+(N'Bålmester'),     -- 2
+(N'Svømmer'),       -- 3
+(N'Knob og reb'),   -- 4
+(N'Kanosejler');    -- 5
+
+INSERT INTO Leder (Navn, BrugerNavn, Adgangskode) VALUES
+(N'Mette Hansen', 'mette', '1234'),  -- 1
+(N'Jonas Berg', 'jonas', '1234'),    -- 2
+(N'Aisha Khan', 'aisha', '1234');    -- 3
+
+INSERT INTO Spejder (Navn, BrugerNavn, Adgangskode, Foeselsdag) VALUES
+(N'Ida Larsen', 'ida', '1234', '2014-03-12'),        -- 1
+(N'Oliver Nielsen', 'oliver', '1234', '2017-08-02'), -- 2
+(N'Noah Pedersen', 'noah', '1234', '2011-01-20'),    -- 3
+(N'Freja Madsen', 'freja', '1234', '2013-11-05');    -- 4
+
+INSERT INTO SpejderTegn (SpejderId, TegnId) VALUES
+(1, 2), (1, 3),
+(3, 1), (3, 3), (3, 5),
+(4, 4);
+
+-- Lejren er i uge 27 2027
+INSERT INTO Aktivitet (Navn, Tidspunkt, MaksDeltagere, MinAlder, Sted, Beskrivelse) VALUES
+(N'Mad over bål', '2027-07-05 17:00', 12, 8, N'Bålpladsen', N'Vi laver snobrød og pandekager over åben ild. Medbring egen kop!'),
+(N'Ridetur på Hedegården', '2027-07-06 10:00', 6, 10, N'Hedegården', N'Besøg gården, mød dyrene og tag en tur på hesteryg.'),
+(N'Fang dyr i vandhullet', '2027-07-06 14:00', 15, 6, N'Vandhullet', N'Med net og spande undersøger vi hvad der lever i vandet.'),
+(N'Kanotur på søen', '2027-07-07 09:30', 8, 12, N'Hedeland Sø', N'En hel formiddag på vandet. Kræver at man kan svømme og har kanotegnet.'),
+(N'Byg en svævebane', '2027-07-08 13:00', 10, 11, N'Skoven', N'Vi bygger en svævebane mellem træerne med reb og knob.'),
+(N'Natløb med lommelygter', '2027-07-08 21:00', 20, 11, N'Lejrens indgang', N'Find posterne i mørket og løs opgaverne undervejs.'),
+(N'Lejrbål og sang', '2027-07-09 20:00', 200, 0, N'Det store bål', N'Ugens afslutning med sange og skumfiduser for hele lejren.');
+
+INSERT INTO AktivitetLeder (AktivitetsId, LederId) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 2), (4, 3),
+(5, 3),
+(6, 1), (6, 2),
+(7, 1), (7, 2), (7, 3);
+
+INSERT INTO AktivitetTegn (AktivitetsId, TegnId) VALUES
+(4, 3), (4, 5),
+(5, 4);
+
+INSERT INTO Tilmelding (SpejderId, AktivitetsId) VALUES
+(1, 1),
+(1, 3),
+(3, 4),
+(4, 5);
+GO

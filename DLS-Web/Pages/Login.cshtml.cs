@@ -36,9 +36,10 @@ namespace DLS_Web.Pages
 
         public IActionResult OnPost()
         {
+            // Først tjekkes om det er en leder, og ellers om det er en spejder
             foreach (Leder l in _lederRepo.HentAlle())
             {
-                if (l.BrugerNavn.ToLower() == (BrugerNavn ?? "").Trim().ToLower() && l.Adgangskode == Adgangskode)
+                if (l.BrugerNavn == BrugerNavn && l.Adgangskode == Adgangskode)
                 {
                     HttpContext.Session.SetInt32("BrugerId", l.Id);
                     HttpContext.Session.SetString("Navn", l.Navn);
@@ -50,7 +51,7 @@ namespace DLS_Web.Pages
 
             foreach (Spejder s in _spejderRepo.HentAlle())
             {
-                if (s.BrugerNavn.ToLower() == (BrugerNavn ?? "").Trim().ToLower() && s.Adgangskode == Adgangskode)
+                if (s.BrugerNavn == BrugerNavn && s.Adgangskode == Adgangskode)
                 {
                     HttpContext.Session.SetInt32("BrugerId", s.Id);
                     HttpContext.Session.SetString("Navn", s.Navn);

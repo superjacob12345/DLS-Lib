@@ -52,12 +52,8 @@ namespace DLS_Web.Pages.Aktiviteter
                 return RedirectToPage("/Login");
             }
 
-            Spejder? spejder = _spejderRepo.HentEn(spejderId);
             _tilmeldingRepo.Frameld(spejderId, id);
-            if (spejder != null)
-            {
-                TempData["Besked"] = spejder.Navn + " er fjernet fra aktiviteten";
-            }
+            TempData["Besked"] = "Spejderen er fjernet fra aktiviteten";
             return RedirectToPage(new { id });
         }
 
@@ -68,16 +64,20 @@ namespace DLS_Web.Pages.Aktiviteter
 
         public string TegnNavne(Spejder spejder)
         {
-            List<string> navne = new List<string>();
+            string navne = "";
             foreach (int id in spejder.TegnIds)
             {
                 Tegn? t = _tegnRepo.HentEn(id);
                 if (t != null)
                 {
-                    navne.Add(t.Navn);
+                    if (navne != "")
+                    {
+                        navne += ", ";
+                    }
+                    navne += t.Navn;
                 }
             }
-            return string.Join(", ", navne);
+            return navne;
         }
     }
 }

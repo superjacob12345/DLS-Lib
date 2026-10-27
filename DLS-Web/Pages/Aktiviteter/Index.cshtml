@@ -4,129 +4,66 @@
     ViewData["Title"] = "Aktiviteter";
 }
 
-<div class="side-top">
-    <div>
-        <h1>Ugens aktiviteter</h1>
-        @if (Model.ErLeder)
-        {
-            <p>Opret, ret og nedlæg aktiviteter, og se hvem der er tilmeldt.</p>
-        }
-        else
-        {
-            <p>Tryk på "Tilmeld" for at være med. Du kan altid framelde dig igen.</p>
-        }
-    </div>
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <div class="filter">
-            <a asp-route-vis="alle" class="@(Model.Vis != "mine" ? "valgt" : "")">Alle</a>
-            <a asp-route-vis="mine" class="@(Model.Vis == "mine" ? "valgt" : "")">@(Model.ErLeder ? "Dem jeg står for" : "Dem jeg kan deltage i")</a>
-        </div>
-        @if (Model.ErLeder)
-        {
-            <a asp-page="Rediger" class="btn btn-primary">+ Ny aktivitet</a>
-        }
-    </div>
-</div>
+<h1>Aktiviteter</h1>
+
+<p>
+    <a asp-route-vis="alle" class="btn btn-outline-primary btn-sm">Vis alle</a>
+    @if (Model.ErLeder)
+    {
+        <a asp-route-vis="mine" class="btn btn-outline-primary btn-sm">Vis dem jeg står for</a>
+        <a asp-page="Rediger" class="btn btn-primary btn-sm">Opret ny aktivitet</a>
+    }
+    else
+    {
+        <a asp-route-vis="mine" class="btn btn-outline-primary btn-sm">Vis dem jeg kan deltage i</a>
+    }
+</p>
 
 @if (Model.Aktiviteter.Count == 0)
 {
-    <div class="panel tom">
-        <span class="tom-ikon">🏕️</span>
-        <p class="mb-0">Der er ingen aktiviteter at vise her.</p>
+    <p>Der er ingen aktiviteter at vise.</p>
+}
+
+@foreach (Aktivitet a in Model.Aktiviteter)
+{
+    int antal = Model.AntalTilmeldte(a);
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@a.Navn</h5>
+            <p class="card-text">@a.Beskrivelse</p>
+            <p class="mb-0"><b>Tidspunkt:</b> @a.Tidspunkt.ToString("dd-MM-yyyy HH:mm")</p>
+            <p class="mb-0"><b>Sted:</b> @a.Sted</p>
+            <p class="mb-0"><b>Ledere:</b> @Model.LederNavne(a)</p>
+            <p class="mb-0"><b>Min. alder:</b> @a.MinAlder år</p>
+            <p class="mb-0"><b>Krævede tegn:</b> @Model.TegnNavne(a)</p>
+            <p><b>Tilmeldte:</b> @antal / @a.MaksDeltagere</p>
+
+            @if (Model.ErLeder)
+            {
+                <a asp-page="Tilmeldte" asp-route-id="@a.Id" class="btn btn-primary btn-sm">Se tilmeldte</a>
+                <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-secondary btn-sm">Ret</a>
+                <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Slet</button>
+                </form>
+            }
+            else if (Model.ErTilmeldt(a))
+            {
+                <span class="text-success me-2">Du er tilmeldt</span>
+                <form method="post" asp-page-handler="Frameld" asp-route-id="@a.Id" class="d-inline">
+                    <button type="submit" class="btn btn-secondary btn-sm">Frameld</button>
+                </form>
+            }
+            else if (Model.Grund(a) == "")
+            {
+                <form method="post" asp-page-handler="Tilmeld" asp-route-id="@a.Id">
+                    <button type="submit" class="btn btn-success btn-sm">Tilmeld</button>
+                </form>
+            }
+            else
+            {
+                <span class="text-danger">@Model.Grund(a)</span>
+            }
+        </div>
     </div>
 }
-
-@{
-    // Bruges til at vise en overskrift, hver gang en ny dag starter
-    DateTime forrigeDag = DateTime.MinValue;
-}
-
-<section class="dag">
-        @foreach (Aktivitet a in Model.Aktiviteter)
-        {
-            if (a.Tidspunkt.Date != forrigeDag)
-            {
-                forrigeDag = a.Tidspunkt.Date;
-                string dagNavn = forrigeDag.ToString("dddd d. MMMM");
-                <h2 class="dag-titel">@(dagNavn.Substring(0, 1).ToUpper() + dagNavn.Substring(1))</h2>
-            }
-
-            int antal = Model.AntalTilmeldte(a);
-            int procent = a.MaksDeltagere > 0 ? Math.Min(100, antal * 100 / a.MaksDeltagere) : 100;
-            bool tilmeldt = Model.ErTilmeldt(a);
-            string grund = Model.Grund(a);
-
-            <article class="akt @(tilmeldt ? "akt-tilmeldt" : "")">
-                <div class="akt-tid">
-                    <span class="akt-klokke">@a.Tidspunkt.ToString("HH:mm")</span>
-                    <small>@a.Tidspunkt.ToString("dd/MM")</small>
-                </div>
-
-                <div>
-                    <h3>@a.Navn</h3>
-                    <div class="akt-meta">
-                        <span>📍 @a.Sted</span>
-                        <span>⚜ @Model.LederNavne(a)</span>
-                    </div>
-                    @if (a.Beskrivelse != "")
-                    {
-                        <p>@a.Beskrivelse</p>
-                    }
-
-                    <div class="chips">
-                        <span class="chip">@(a.MinAlder > 0 ? "Fra " + a.MinAlder + " år" : "Alle aldre")</span>
-                        @foreach (var t in Model.KraevedeTegn(a))
-                        {
-                            if (Model.MigSelv == null)
-                            {
-                                <span class="chip chip-tegn">Kræver: @t.Navn</span>
-                            }
-                            else if (Model.MigSelv.TegnIds.Contains(t.Id))
-                            {
-                                <span class="chip chip-ok">✓ @t.Navn</span>
-                            }
-                            else
-                            {
-                                <span class="chip chip-mangler">Mangler: @t.Navn</span>
-                            }
-                        }
-                    </div>
-
-                    <div class="pladser">
-                        <div class="progress" role="progressbar" aria-label="Pladser taget" aria-valuenow="@antal" aria-valuemin="0" aria-valuemax="@a.MaksDeltagere">
-                            <div class="progress-bar @(antal >= a.MaksDeltagere ? "fuld" : "")" style="width: @procent%"></div>
-                        </div>
-                        <small>@antal af @a.MaksDeltagere pladser taget</small>
-                    </div>
-                </div>
-
-                <div class="akt-handling">
-                    @if (Model.ErLeder)
-                    {
-                        <a asp-page="Tilmeldte" asp-route-id="@a.Id" class="btn btn-primary btn-sm">Se tilmeldte (@antal)</a>
-                        <a asp-page="Rediger" asp-route-id="@a.Id" class="btn btn-lys btn-sm">Ret</a>
-                        <form method="post" asp-page-handler="Slet" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
-                            <button type="submit" class="btn btn-fare btn-sm">Nedlæg</button>
-                        </form>
-                    }
-                    else if (tilmeldt)
-                    {
-                        <span class="status status-tilmeldt">✓ Du er tilmeldt</span>
-                        <form method="post" asp-page-handler="Frameld" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
-                            <button type="submit" class="btn btn-lys btn-sm">Frameld</button>
-                        </form>
-                    }
-                    else if (grund == "")
-                    {
-                        <form method="post" asp-page-handler="Tilmeld" asp-route-id="@a.Id" asp-route-vis="@Model.Vis">
-                            <button type="submit" class="btn btn-skov">Tilmeld</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span class="status status-nej">@grund</span>
-                    }
-                </div>
-            </article>
-        }
-</section>
