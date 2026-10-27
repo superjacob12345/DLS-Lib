@@ -41,21 +41,9 @@ namespace DLS_Web.Pages.Tegnene
                 return RedirectToPage("/Login");
             }
 
-            Tegn? tegn = _repo.HentEn(id);
-            if (tegn != null)
-            {
-                // Fjern tegnet fra spejdere og aktiviteter, så ingen står med et tegn der ikke findes
-                foreach (Spejder s in _spejderRepo.HentAlle())
-                {
-                    s.TegnIds.Remove(id);
-                }
-                foreach (Aktivitet a in _aktivitetRepo.HentAlle())
-                {
-                    a.KraevedeTegnIds.Remove(id);
-                }
-                _repo.Slet(id);
-                TempData["Besked"] = tegn.Navn + " er slettet";
-            }
+            // Tegnet bliver også fjernet fra spejdere og aktiviteter, fordi tabellerne har ON DELETE CASCADE
+            _repo.Slet(id);
+            TempData["Besked"] = "Tegnet er slettet";
             return RedirectToPage();
         }
 

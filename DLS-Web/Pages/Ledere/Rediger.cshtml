@@ -1,51 +1,50 @@
 @page "{id:int?}"
 @model DLS_Web.Pages.Ledere.RedigerModel
 @{
-    ViewData["Title"] = Model.ErNy ? "Ny leder" : "Ret leder";
+    ViewData["Title"] = "Leder";
 }
 
-<a asp-page="Index" class="tilbage">← Tilbage til ledere</a>
+@if (Model.ErNy)
+{
+    <h1>Opret leder</h1>
+}
+else
+{
+    <h1>Ret leder</h1>
+}
 
-<div class="panel panel-smal">
-    <h1 class="h2 mb-4">@(Model.ErNy ? "Ny leder" : "Ret " + Model.Leder.Navn)</h1>
+<div class="col-md-4">
+    @if (Model.Fejl.Count > 0)
+    {
+        <div class="alert alert-danger">
+            @foreach (string fejl in Model.Fejl)
+            {
+                <div>@fejl</div>
+            }
+        </div>
+    }
 
     <form method="post">
-        @if (Model.Fejl.Count > 0)
-        {
-            <div class="alert alert-danger besked">
-                @foreach (string fejl in Model.Fejl)
-                {
-                    <div>@fejl</div>
-                }
-            </div>
-        }
         <input type="hidden" asp-for="Leder.Id" />
 
-        <div class="row g-3">
-            <div class="col-12">
-                <label asp-for="Leder.Navn" class="form-label">Navn</label>
-                <input asp-for="Leder.Navn" class="form-control" required />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Leder.BrugerNavn" class="form-label">Brugernavn</label>
-                <input asp-for="Leder.BrugerNavn" class="form-control" autocomplete="off" required />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Leder.Adgangskode" class="form-label">Adgangskode</label>
-                @if (Model.ErNy)
-                {
-                    <input asp-for="Leder.Adgangskode" type="password" class="form-control" autocomplete="new-password" required />
-                }
-                else
-                {
-                    <input asp-for="Leder.Adgangskode" type="password" class="form-control" autocomplete="new-password" placeholder="Lad stå tom for at beholde" />
-                }
-            </div>
+        <div class="mb-3">
+            <label asp-for="Leder.Navn" class="form-label">Navn</label>
+            <input asp-for="Leder.Navn" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Leder.BrugerNavn" class="form-label">Brugernavn</label>
+            <input asp-for="Leder.BrugerNavn" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Leder.Adgangskode" class="form-label">Adgangskode</label>
+            <input asp-for="Leder.Adgangskode" type="password" class="form-control" />
+            @if (!Model.ErNy)
+            {
+                <div class="form-text">Lad feltet stå tomt for at beholde den gamle adgangskode.</div>
+            }
         </div>
 
-        <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret leder" : "Gem ændringer")</button>
-            <a asp-page="Index" class="btn btn-lys">Annuller</a>
-        </div>
+        <button type="submit" class="btn btn-primary">Gem</button>
+        <a asp-page="Index" class="btn btn-secondary">Tilbage</a>
     </form>
 </div>

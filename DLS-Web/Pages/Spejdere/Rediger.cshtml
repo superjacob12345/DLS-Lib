@@ -1,68 +1,65 @@
 @page "{id:int?}"
 @model DLS_Web.Pages.Spejdere.RedigerModel
 @{
-    ViewData["Title"] = Model.ErNy ? "Ny spejder" : "Ret spejder";
+    ViewData["Title"] = "Spejder";
 }
 
-<a asp-page="Index" class="tilbage">← Tilbage til spejdere</a>
+@if (Model.ErNy)
+{
+    <h1>Opret spejder</h1>
+}
+else
+{
+    <h1>Ret spejder</h1>
+}
 
-<div class="panel panel-smal">
-    <h1 class="h2 mb-4">@(Model.ErNy ? "Ny spejder" : "Ret " + Model.Spejder.Navn)</h1>
+<div class="col-md-4">
+    @if (Model.Fejl.Count > 0)
+    {
+        <div class="alert alert-danger">
+            @foreach (string fejl in Model.Fejl)
+            {
+                <div>@fejl</div>
+            }
+        </div>
+    }
 
     <form method="post">
-        @if (Model.Fejl.Count > 0)
-        {
-            <div class="alert alert-danger besked">
-                @foreach (string fejl in Model.Fejl)
-                {
-                    <div>@fejl</div>
-                }
-            </div>
-        }
         <input type="hidden" asp-for="Spejder.Id" />
 
-        <div class="row g-3">
-            <div class="col-md-7">
-                <label asp-for="Spejder.Navn" class="form-label">Navn</label>
-                <input asp-for="Spejder.Navn" class="form-control" required />
-            </div>
-            <div class="col-md-5">
-                <label asp-for="Spejder.Foeselsdag" class="form-label">Fødselsdato</label>
-                <input asp-for="Spejder.Foeselsdag" type="date" class="form-control" required />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Spejder.BrugerNavn" class="form-label">Brugernavn</label>
-                <input asp-for="Spejder.BrugerNavn" class="form-control" autocomplete="off" required />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Spejder.Adgangskode" class="form-label">Adgangskode</label>
-                @if (Model.ErNy)
-                {
-                    <input asp-for="Spejder.Adgangskode" type="password" class="form-control" autocomplete="new-password" required />
-                }
-                else
-                {
-                    <input asp-for="Spejder.Adgangskode" type="password" class="form-control" autocomplete="new-password" placeholder="Lad stå tom for at beholde" />
-                }
-            </div>
+        <div class="mb-3">
+            <label asp-for="Spejder.Navn" class="form-label">Navn</label>
+            <input asp-for="Spejder.Navn" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Spejder.Foeselsdag" class="form-label">Fødselsdato</label>
+            <input asp-for="Spejder.Foeselsdag" type="date" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Spejder.BrugerNavn" class="form-label">Brugernavn</label>
+            <input asp-for="Spejder.BrugerNavn" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Spejder.Adgangskode" class="form-label">Adgangskode</label>
+            <input asp-for="Spejder.Adgangskode" type="password" class="form-control" />
+            @if (!Model.ErNy)
+            {
+                <div class="form-text">Lad feltet stå tomt for at beholde den gamle adgangskode.</div>
+            }
+        </div>
 
-            <div class="col-12">
-                <span class="form-label d-block">Tegn spejderen har taget</span>
-                <div class="valg-liste">
-                    @foreach (var t in Model.AlleTegn)
-                    {
-                        <div class="valg">
-                            <input type="checkbox" name="Spejder.TegnIds" value="@t.Id" id="tegn-@t.Id" checked="@Model.Spejder.TegnIds.Contains(t.Id)" />
-                            <label for="tegn-@t.Id">@t.Navn</label>
-                        </div>
-                    }
+        <div class="mb-3">
+            <b>Tegn spejderen har taget</b>
+            @foreach (Tegn t in Model.AlleTegn)
+            {
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="Spejder.TegnIds" value="@t.Id" checked="@Model.Spejder.TegnIds.Contains(t.Id)" />
+                    <label class="form-check-label">@t.Navn</label>
                 </div>
-            </div>
+            }
         </div>
 
-        <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret spejder" : "Gem ændringer")</button>
-            <a asp-page="Index" class="btn btn-lys">Annuller</a>
-        </div>
+        <button type="submit" class="btn btn-primary">Gem</button>
+        <a asp-page="Index" class="btn btn-secondary">Tilbage</a>
     </form>
 </div>

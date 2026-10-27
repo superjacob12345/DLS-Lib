@@ -1,32 +1,38 @@
 @page "{id:int?}"
 @model DLS_Web.Pages.Tegnene.RedigerModel
 @{
-    ViewData["Title"] = Model.ErNy ? "Nyt tegn" : "Ret tegn";
+    ViewData["Title"] = "Tegn";
 }
 
-<a asp-page="Index" class="tilbage">← Tilbage til tegn</a>
+@if (Model.ErNy)
+{
+    <h1>Opret tegn</h1>
+}
+else
+{
+    <h1>Ret tegn</h1>
+}
 
-<div class="panel panel-smal">
-    <h1 class="h2 mb-4">@(Model.ErNy ? "Nyt tegn" : "Ret " + Model.Tegn.Navn)</h1>
+<div class="col-md-4">
+    @if (Model.Fejl.Count > 0)
+    {
+        <div class="alert alert-danger">
+            @foreach (string fejl in Model.Fejl)
+            {
+                <div>@fejl</div>
+            }
+        </div>
+    }
 
     <form method="post">
-        @if (Model.Fejl.Count > 0)
-        {
-            <div class="alert alert-danger besked">
-                @foreach (string fejl in Model.Fejl)
-                {
-                    <div>@fejl</div>
-                }
-            </div>
-        }
         <input type="hidden" asp-for="Tegn.Id" />
 
-        <label asp-for="Tegn.Navn" class="form-label">Navn</label>
-        <input asp-for="Tegn.Navn" class="form-control" placeholder="Fx Førstehjælp" required />
-
-        <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">@(Model.ErNy ? "Opret tegn" : "Gem ændringer")</button>
-            <a asp-page="Index" class="btn btn-lys">Annuller</a>
+        <div class="mb-3">
+            <label asp-for="Tegn.Navn" class="form-label">Navn</label>
+            <input asp-for="Tegn.Navn" class="form-control" required />
         </div>
+
+        <button type="submit" class="btn btn-primary">Gem</button>
+        <a asp-page="Index" class="btn btn-secondary">Tilbage</a>
     </form>
 </div>

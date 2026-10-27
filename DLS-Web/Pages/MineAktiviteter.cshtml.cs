@@ -71,12 +71,8 @@ namespace DLS_Web.Pages
                 return RedirectToPage("/Login");
             }
 
-            Aktivitet? aktivitet = _aktivitetRepo.HentEn(id);
             _tilmeldingRepo.Frameld(HttpContext.Session.GetInt32("BrugerId") ?? 0, id);
-            if (aktivitet != null)
-            {
-                TempData["Besked"] = "Du er frameldt " + aktivitet.Navn;
-            }
+            TempData["Besked"] = "Du er frameldt aktiviteten";
             return RedirectToPage();
         }
     }

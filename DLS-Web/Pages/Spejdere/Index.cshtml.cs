@@ -56,18 +56,22 @@ namespace DLS_Web.Pages.Spejdere
             return _tilmeldingRepo.HentForSpejder(spejder.Id).Count;
         }
 
-        public List<Tegn> HentTegn(Spejder spejder)
+        public string TegnNavne(Spejder spejder)
         {
-            List<Tegn> tegn = new List<Tegn>();
+            string navne = "";
             foreach (int id in spejder.TegnIds)
             {
                 Tegn? t = _tegnRepo.HentEn(id);
                 if (t != null)
                 {
-                    tegn.Add(t);
+                    if (navne != "")
+                    {
+                        navne += ", ";
+                    }
+                    navne += t.Navn;
                 }
             }
-            return tegn;
+            return navne;
         }
     }
 }

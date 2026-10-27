@@ -4,53 +4,37 @@
     ViewData["Title"] = "Tegn";
 }
 
-<div class="side-top">
-    <div>
-        <h1>Tegn</h1>
-        <p>Færdigheder spejderne kan have. Nogle aktiviteter kræver bestemte tegn.</p>
-    </div>
-    <a asp-page="Rediger" class="btn btn-primary">+ Nyt tegn</a>
-</div>
+<h1>Tegn</h1>
+<p>Tegn er færdigheder spejderne kan have. Nogle aktiviteter kræver bestemte tegn.</p>
+
+<a asp-page="Rediger" class="btn btn-primary mb-3">Opret nyt tegn</a>
 
 @if (Model.Tegn.Count == 0)
 {
-    <div class="panel tom">
-        <span class="tom-ikon">⚜</span>
-        <p class="mb-0">Der er ingen tegn endnu.</p>
-    </div>
+    <p>Der er ingen tegn endnu.</p>
 }
 else
 {
-    <div class="panel tabel-panel">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Tegn</th>
-                        <th>Spejdere med tegnet</th>
-                        <th>Aktiviteter der kræver det</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var t in Model.Tegn)
-                    {
-                        <tr>
-                            <td><span class="chip chip-tegn">⚜ @t.Navn</span></td>
-                            <td>@Model.AntalSpejdere(t)</td>
-                            <td>@Model.AntalAktiviteter(t)</td>
-                            <td>
-                                <div class="handlinger">
-                                    <a asp-page="Rediger" asp-route-id="@t.Id" class="btn btn-lys btn-sm">Ret</a>
-                                    <form method="post" asp-page-handler="Slet" asp-route-id="@t.Id">
-                                        <button type="submit" class="btn btn-fare btn-sm">Slet</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <table class="table">
+        <tr>
+            <th>Navn</th>
+            <th>Antal spejdere med tegnet</th>
+            <th>Antal aktiviteter der kræver det</th>
+            <th></th>
+        </tr>
+        @foreach (Tegn t in Model.Tegn)
+        {
+            <tr>
+                <td>@t.Navn</td>
+                <td>@Model.AntalSpejdere(t)</td>
+                <td>@Model.AntalAktiviteter(t)</td>
+                <td>
+                    <a asp-page="Rediger" asp-route-id="@t.Id" class="btn btn-secondary btn-sm">Ret</a>
+                    <form method="post" asp-page-handler="Slet" asp-route-id="@t.Id" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Slet</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
 }

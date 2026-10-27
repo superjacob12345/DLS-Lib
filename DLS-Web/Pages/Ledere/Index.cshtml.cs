@@ -64,27 +64,27 @@ namespace DLS_Web.Pages.Ledere
                 }
             }
 
-            foreach (Aktivitet a in _aktivitetRepo.HentAlle())
-            {
-                a.LederIds.Remove(id);
-            }
             _repo.Slet(id);
             TempData["Besked"] = leder.Navn + " er slettet";
             return RedirectToPage();
         }
 
-        // De aktiviteter lederen står for
-        public List<Aktivitet> HentAktiviteter(Leder leder)
+        // Navnene på de aktiviteter lederen står for
+        public string AktivitetNavne(Leder leder)
         {
-            List<Aktivitet> resultat = new List<Aktivitet>();
+            string navne = "";
             foreach (Aktivitet a in _aktivitetRepo.HentAlle())
             {
                 if (a.LederIds.Contains(leder.Id))
                 {
-                    resultat.Add(a);
+                    if (navne != "")
+                    {
+                        navne += ", ";
+                    }
+                    navne += a.Navn;
                 }
             }
-            return resultat;
+            return navne;
         }
     }
 }
