@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace DLS_Lib.UserStories
@@ -34,6 +35,8 @@ namespace DLS_Lib.UserStories
             set { _id = value; }
         }
 
+        [Required(ErrorMessage = "Aktiviteten skal have et navn")]
+        [StringLength(100, ErrorMessage = "Navnet må højst være 100 tegn")]
         public string Navn
         {
             get { return _navn; }
@@ -46,24 +49,30 @@ namespace DLS_Lib.UserStories
             set { _tidspunkt = value; }
         }
 
+        [Display(Name = "Maks deltagere")]
+        [Range(1, 500, ErrorMessage = "Maks deltagere skal være mellem 1 og 500")]
         public int MaksDeltagere
         {
             get { return _maksDeltagere; }
             set { _maksDeltagere = value; }
         }
 
+        [Display(Name = "Min. alder")]
+        [Range(0, 99, ErrorMessage = "Min. alder skal være mellem 0 og 99 år")]
         public int MinAlder
         {
             get { return _minAlder; }
             set { _minAlder = value; }
         }
 
+        [StringLength(100, ErrorMessage = "Stedet må højst være 100 tegn")]
         public string Sted
         {
             get { return _sted; }
             set { _sted = value; }
         }
 
+        [StringLength(1000, ErrorMessage = "Beskrivelsen må højst være 1000 tegn")]
         public string Beskrivelse
         {
             get { return _beskrivelse; }

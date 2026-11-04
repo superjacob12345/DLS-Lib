@@ -17,9 +17,6 @@ namespace DLS_Web.Pages.Spejdere
 
         public List<Tegn> AlleTegn { get; set; } = new List<Tegn>();
 
-        // Fejlbeskeder der vises over formularen
-        public List<string> Fejl { get; set; } = new List<string>();
-
         public bool ErNy
         {
             get { return Spejder.Id == 0; }
@@ -81,39 +78,39 @@ namespace DLS_Web.Pages.Spejdere
             Spejder.Navn = Spejder.Navn.Trim();
             Spejder.BrugerNavn = Spejder.BrugerNavn.Trim();
 
-            // Lader man adgangskoden stå tom ved rettelse, beholdes den gamle
+            // Reglerne på Spejder-klassen ([Required], [StringLength], [Foedselsdato] osv.)
+            // er allerede tjekket af ASP.NET og ligger i ModelState.
+            // Her tilføjes de regler der kræver mere end selve feltet:
+
+            // En ny spejder skal have en adgangskode
+            if (ErNy && Spejder.Adgangskode == "")
+            {
+                ModelState.AddModelError("Spejder.Adgangskode", "Skriv en adgangskode");
+            }
+
+            // Brugernavnet må ikke være taget
+            if (Spejder.BrugerNavn != "" && BrugerNavnOptaget())
+            {
+                ModelState.AddModelError("Spejder.BrugerNavn", "Brugernavnet \"" + Spejder.BrugerNavn + "\" er allerede taget");
+            }
+
+            // Den spejder man retter skal findes
             Spejder? gammel = _repo.HentEn(Spejder.Id);
-            if (gammel != null && Spejder.Adgangskode == "")
+            if (!ErNy && gammel == null)
             {
-                Spejder.Adgangskode = gammel.Adgangskode;
+                return NotFound();
             }
 
-            // Tjek at felterne er udfyldt rigtigt
-            if (Spejder.Navn == "")
-            {
-                Fejl.Add("Skriv spejderens navn");
-            }
-            if (Spejder.BrugerNavn == "")
-            {
-                Fejl.Add("Skriv et brugernavn");
-            }
-            else if (BrugerNavnOptaget())
-            {
-                Fejl.Add("Brugernavnet \"" + Spejder.BrugerNavn + "\" er allerede taget");
-            }
-            if (Spejder.Adgangskode == "")
-            {
-                Fejl.Add("Skriv en adgangskode");
-            }
-            if (Spejder.Foeselsdag > DateOnly.FromDateTime(DateTime.Today))
-            {
-                Fejl.Add("Fødselsdatoen kan ikke ligge i fremtiden");
-            }
-
-            if (Fejl.Count > 0)
+            if (!ModelState.IsValid)
             {
                 AlleTegn = _tegnRepo.HentAlle();
                 return Page();
+            }
+
+            // Lader man adgangskoden stå tom ved rettelse, beholdes den gamle
+            if (gammel != null && Spejder.Adgangskode == "")
+            {
+                Spejder.Adgangskode = gammel.Adgangskode;
             }
 
             if (Spejder.Id == 0)

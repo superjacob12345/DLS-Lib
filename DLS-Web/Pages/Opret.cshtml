@@ -8,36 +8,36 @@
 <p>Her kan du oprette dig som spejder. Ledere skal oprettes af en anden leder.</p>
 
 <div class="col-md-4">
-    @if (Model.Fejl.Count > 0)
+    @if (!ViewData.ModelState.IsValid)
     {
-        <div class="alert alert-danger">
-            @foreach (string fejl in Model.Fejl)
-            {
-                <div>@fejl</div>
-            }
-        </div>
+        <div class="alert alert-danger">Din bruger blev ikke oprettet. Ret de røde fejl nedenfor.</div>
     }
 
     <form method="post">
         <div class="mb-3">
             <label asp-for="Navn" class="form-label">Navn</label>
-            <input asp-for="Navn" class="form-control" required />
+            <input asp-for="Navn" class="form-control" />
+            <span asp-validation-for="Navn" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label asp-for="Foedselsdato" class="form-label">Fødselsdato</label>
-            <input asp-for="Foedselsdato" type="date" class="form-control" required />
+            <input asp-for="Foedselsdato" type="date" class="form-control" />
+            <span asp-validation-for="Foedselsdato" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label asp-for="BrugerNavn" class="form-label">Brugernavn</label>
-            <input asp-for="BrugerNavn" class="form-control" required />
+            <input asp-for="BrugerNavn" class="form-control" />
+            <span asp-validation-for="BrugerNavn" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label asp-for="Adgangskode" class="form-label">Adgangskode</label>
-            <input asp-for="Adgangskode" type="password" class="form-control" required />
+            <input asp-for="Adgangskode" type="password" class="form-control" />
+            <span asp-validation-for="Adgangskode" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label asp-for="GentagAdgangskode" class="form-label">Gentag adgangskode</label>
-            <input asp-for="GentagAdgangskode" type="password" class="form-control" required />
+            <input asp-for="GentagAdgangskode" type="password" class="form-control" />
+            <span asp-validation-for="GentagAdgangskode" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary">Opret bruger</button>
     </form>

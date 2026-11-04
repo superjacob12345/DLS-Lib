@@ -1,5 +1,6 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -12,23 +13,32 @@ namespace DLS_Web.Pages
         private SpejderRepository _spejderRepo;
         private LederRepository _lederRepo;
 
+        // Samme regler som på Spejder-klassen
         [BindProperty]
+        [Required(ErrorMessage = "Skriv dit navn")]
+        [StringLength(100, ErrorMessage = "Navnet må højst være 100 tegn")]
         public string Navn { get; set; } = "";
 
         [BindProperty]
+        [Required(ErrorMessage = "Skriv et brugernavn")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Brugernavnet skal være mellem 3 og 50 tegn")]
+        [RegularExpression(@"^\S+$", ErrorMessage = "Brugernavnet må ikke indeholde mellemrum")]
         public string BrugerNavn { get; set; } = "";
 
         [BindProperty]
+        [Required(ErrorMessage = "Skriv en adgangskode")]
+        [StringLength(100, MinimumLength = 4, ErrorMessage = "Adgangskoden skal være mellem 4 og 100 tegn")]
         public string Adgangskode { get; set; } = "";
 
         [BindProperty]
+        [Required(ErrorMessage = "Gentag adgangskoden")]
+        [Compare(nameof(Adgangskode), ErrorMessage = "De to adgangskoder er ikke ens")]
         public string GentagAdgangskode { get; set; } = "";
 
         [BindProperty]
+        [Display(Name = "Fødselsdato")]
+        [Foedselsdato]
         public DateOnly Foedselsdato { get; set; }
-
-        // Fejlbeskeder der vises over formularen
-        public List<string> Fejl { get; set; } = new List<string>();
 
         public OpretModel(SpejderRepository spejderRepo, LederRepository lederRepo)
         {
@@ -70,33 +80,14 @@ namespace DLS_Web.Pages
             Navn = Navn.Trim();
             BrugerNavn = BrugerNavn.Trim();
 
-            // Tjek at felterne er udfyldt rigtigt
-            if (Navn == "")
+            // Reglerne på felterne ovenfor er allerede tjekket af ASP.NET.
+            // Brugernavnet må desuden ikke være taget.
+            if (BrugerNavn != "" && BrugerNavnOptaget())
             {
-                Fejl.Add("Skriv dit navn");
-            }
-            if (BrugerNavn == "")
-            {
-                Fejl.Add("Skriv et brugernavn");
-            }
-            else if (BrugerNavnOptaget())
-            {
-                Fejl.Add("Brugernavnet \"" + BrugerNavn + "\" er allerede taget");
-            }
-            if (Adgangskode.Length < 4)
-            {
-                Fejl.Add("Adgangskoden skal være mindst 4 tegn");
-            }
-            else if (Adgangskode != GentagAdgangskode)
-            {
-                Fejl.Add("De to adgangskoder er ikke ens");
-            }
-            if (Foedselsdato > DateOnly.FromDateTime(DateTime.Today))
-            {
-                Fejl.Add("Fødselsdatoen kan ikke ligge i fremtiden");
+                ModelState.AddModelError(nameof(BrugerNavn), "Brugernavnet \"" + BrugerNavn + "\" er allerede taget");
             }
 
-            if (Fejl.Count > 0)
+            if (!ModelState.IsValid)
             {
                 return Page();
             }

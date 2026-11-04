@@ -1,6 +1,7 @@
 using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DLS_Web.Pages.Aktiviteter
@@ -19,9 +20,6 @@ namespace DLS_Web.Pages.Aktiviteter
         // Til afkrydsningsfelterne
         public List<Leder> AlleLedere { get; set; } = new List<Leder>();
         public List<Tegn> AlleTegn { get; set; } = new List<Tegn>();
-
-        // Fejlbeskeder der vises over formularen
-        public List<string> Fejl { get; set; } = new List<string>();
 
         public bool ErNy
         {
@@ -88,33 +86,53 @@ namespace DLS_Web.Pages.Aktiviteter
                 Aktivitet.Beskrivelse = "";
             }
 
-            // Tjek at felterne er udfyldt rigtigt
-            if (Aktivitet.Navn.Trim() == "")
+            Aktivitet.Navn = Aktivitet.Navn.Trim();
+            Aktivitet.Sted = Aktivitet.Sted.Trim();
+            Aktivitet.Beskrivelse = Aktivitet.Beskrivelse.Trim();
+
+            // Reglerne på Aktivitet-klassen ([Required], [Range], [StringLength])
+            // er allerede tjekket af ASP.NET og ligger i ModelState.
+            // Her tilføjes de regler der kræver mere end selve feltet:
+
+            // En ny aktivitet skal ligge ude i fremtiden
+            // (kun hvis feltet ellers er gyldigt, så man ikke får to fejl på samme felt)
+            if (ErNy && ModelState.GetFieldValidationState("Aktivitet.Tidspunkt") != ModelValidationState.Invalid
+                && Aktivitet.Tidspunkt < DateTime.Now)
             {
-                Fejl.Add("Aktiviteten skal have et navn");
+                ModelState.AddModelError("Aktivitet.Tidspunkt", "En ny aktivitet kan ikke ligge i fortiden");
             }
-            if (Aktivitet.MaksDeltagere < 1)
-            {
-                Fejl.Add("Der skal være plads til mindst 1 spejder");
-            }
-            if (Aktivitet.MinAlder < 0)
-            {
-                Fejl.Add("Minimumsalderen kan ikke være negativ");
-            }
+
+            // Mindst én leder, og de valgte ledere skal findes
             if (Aktivitet.LederIds.Count == 0)
             {
-                Fejl.Add("Vælg mindst én leder der står for aktiviteten");
+                ModelState.AddModelError("Aktivitet.LederIds", "Vælg mindst én leder der står for aktiviteten");
             }
-            if (Aktivitet.Id != 0)
+            else if (Aktivitet.LederIds.Any(id => _lederRepo.HentEn(id) == null))
             {
+                ModelState.AddModelError("Aktivitet.LederIds", "En af de valgte ledere findes ikke");
+            }
+
+            // De krævede tegn skal findes
+            if (Aktivitet.KraevedeTegnIds.Any(id => _tegnRepo.HentEn(id) == null))
+            {
+                ModelState.AddModelError("Aktivitet.KraevedeTegnIds", "Et af de valgte tegn findes ikke");
+            }
+
+            // Ved rettelse: aktiviteten skal findes, og maks må ikke blive lavere end antal tilmeldte
+            if (!ErNy)
+            {
+                if (_aktivitetRepo.HentEn(Aktivitet.Id) == null)
+                {
+                    return NotFound();
+                }
                 int tilmeldte = _tilmeldingRepo.HentForAktivitet(Aktivitet.Id).Count;
                 if (Aktivitet.MaksDeltagere < tilmeldte)
                 {
-                    Fejl.Add("Der er allerede " + tilmeldte + " tilmeldt, så maks kan ikke være lavere");
+                    ModelState.AddModelError("Aktivitet.MaksDeltagere", "Der er allerede " + tilmeldte + " tilmeldt, så maks kan ikke være lavere");
                 }
             }
 
-            if (Fejl.Count > 0)
+            if (!ModelState.IsValid)
             {
                 AlleLedere = _lederRepo.HentAlle();
                 AlleTegn = _tegnRepo.HentAlle();
