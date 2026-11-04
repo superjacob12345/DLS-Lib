@@ -72,6 +72,20 @@ namespace DLS_Lib.Repository
             return resultat;
         }
 
+        public void Opret(Tilmelding tilmelding)
+        {
+            db.OpretForbindelse();
+            var command = new SqlCommand(
+                @"INSERT INTO Tilmelding (SpejderId, AktivitetsId, Tilmeldingsdato)
+                  VALUES (@spejderId, @aktivitetId, @dato)",
+                db.forbind);
+            command.Parameters.AddWithValue("@spejderId", tilmelding.SpejderId);
+            command.Parameters.AddWithValue("@aktivitetId", tilmelding.AktivitetId);
+            command.Parameters.AddWithValue("@dato", DateTime.Today);
+            command.ExecuteNonQuery();
+            db.LukForbindelse();
+        }
+
         // READ - hent alle tilmeldinger til én aktivitet
         public List<Tilmelding> HentForAktivitet(int aktivitetId)
         {

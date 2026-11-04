@@ -2,13 +2,39 @@ using DLS_Lib.Repository;
 using DLS_Lib.UserStories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 
 namespace DLS_Web.Pages.Aktiviteter
 {
-    // Både spejdere og ledere bruger denne side. Spejdere kan tilmelde/framelde,
-    // ledere kan rette, slette og se hvem der er tilmeldt.
     public class IndexModel : PageModel
     {
+        private readonly AktivitetRepository _repo;
+        public IndexModel(AktivitetRepository repo)
+        {
+            _repo = repo;
+        }
+
+        [BindProperty]
+        [Required(ErrorMessage = "Aktivitet er påkrævet")]
+        public int AktivitetId { get; set; }
+
+        [BindProperty]
+        [Required(ErrorMessage = "Spejder er påkrævet")]
+        public int SpejderId { get; set; }
+
+        [BindProperty]
+        [Required(ErrorMessage = "Tilmeldingsdato er påkrævet")]
+        public DateTime Tilmeldingsdato { get; set; }
+
+        [BindProperty]
+        [Required(ErrorMessage = "Status er påkrævet")]
+        public string Status { get; set; } = "";
+
+        // Både spejdere og ledere bruger denne side. Spejdere kan tilmelde/framelde,
+        // ledere kan rette, slette og se hvem der er tilmeldt.
+
         private AktivitetRepository _aktivitetRepo;
         private TilmeldingRepository _tilmeldingRepo;
         private SpejderRepository _spejderRepo;
@@ -37,7 +63,7 @@ namespace DLS_Web.Pages.Aktiviteter
             _tegnRepo = tegnRepo;
         }
 
-        public IActionResult OnGet()
+        public IActionResult Get()
         {
             // Man skal være logget ind for at se aktiviteterne
             string? rolle = HttpContext.Session.GetString("Rolle");
@@ -195,5 +221,31 @@ namespace DLS_Web.Pages.Aktiviteter
             }
             return navne;
         }
+
+        public void OnGet()
+        {
+        AktivitetId= 0;
+        Tilmeldingsdato = DateTime.Now;
+        SpejderId = 0;
+        Status = "";
+        }
+    public IActionResult OnPost()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+            // Opret en ny tilmelding
+            Tilmelding tilmelding = new Tilmelding
+            {
+                AktivitetId = AktivitetId,
+                SpejderId = SpejderId,
+                Dato = DateOnly.FromDateTime(Tilmeldingsdato),
+            };
+            _tilmeldingRepo.Opret(tilmelding);
+            TempData["Besked"] = "Tilmelding oprettet";
+            return RedirectToPage();
+        }
+
     }
 }
