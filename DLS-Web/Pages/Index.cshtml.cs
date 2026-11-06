@@ -9,14 +9,23 @@ namespace DLS_Web.Pages
     {
         private AktivitetRepository _aktivitetRepo;
 
-        // De næste aktiviteter der vises på forsiden
+        /// <summary>
+        /// De næste aktiviteter der vises på forsiden. Højst 4, og kun aktiviteter der ikke er begyndt endnu.
+        /// </summary>
         public List<Aktivitet> Kommende { get; set; } = new List<Aktivitet>();
 
+        /// <summary>
+        /// Opretter siden med det repository den skal bruge.
+        /// </summary>
+        /// <param name="aktivitetRepo">Repository til aktiviteter.</param>
         public IndexModel(AktivitetRepository aktivitetRepo)
         {
             _aktivitetRepo = aktivitetRepo;
         }
 
+        /// <summary>
+        /// Viser forsiden og finder de 4 første aktiviteter der ikke er begyndt endnu.
+        /// </summary>
         public void OnGet()
         {
             // Find de 4 første aktiviteter der ikke er begyndt endnu

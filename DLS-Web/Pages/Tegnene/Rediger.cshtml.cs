@@ -10,22 +10,39 @@ namespace DLS_Web.Pages.Tegnene
     {
         private TegnRepository _repo;
 
+        /// <summary>
+        /// Det tegn der oprettes eller rettes i formularen.
+        /// </summary>
         [BindProperty]
         public Tegn Tegn { get; set; } = new Tegn();
 
-        // Fejlbeskeder der vises over formularen
+        /// <summary>
+        /// Fejlbeskeder der vises over formularen.
+        /// </summary>
         public List<string> Fejl { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Angiver om tegnet er nyt og endnu ikke gemt (Id er 0).
+        /// </summary>
         public bool ErNy
         {
             get { return Tegn.Id == 0; }
         }
 
+        /// <summary>
+        /// Opretter siden med det repository den skal bruge.
+        /// </summary>
+        /// <param name="repo">Repository til tegn.</param>
         public RedigerModel(TegnRepository repo)
         {
             _repo = repo;
         }
 
+        /// <summary>
+        /// Viser formularen. Uden id er den tom, og med id hentes det tegn der skal rettes. Kun ledere har adgang.
+        /// </summary>
+        /// <param name="id">Id på det tegn der skal rettes, eller null ved oprettelse.</param>
+        /// <returns>Siden, en omdirigering til login hvis brugeren ikke er leder, eller NotFound hvis tegnet ikke findes.</returns>
         public IActionResult OnGet(int? id)
         {
             // Kun ledere må oprette og rette tegn
@@ -46,6 +63,10 @@ namespace DLS_Web.Pages.Tegnene
             return Page();
         }
 
+        /// <summary>
+        /// Validerer formularen og opretter eller opdaterer tegnet. Kun ledere har adgang.
+        /// </summary>
+        /// <returns>En omdirigering til oversigten når tegnet er gemt, siden igen ved valideringsfejl, eller en omdirigering til login hvis brugeren ikke er leder.</returns>
         public IActionResult OnPost()
         {
             if (HttpContext.Session.GetString("Rolle") != "Leder")

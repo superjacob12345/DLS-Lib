@@ -10,7 +10,10 @@ namespace DLS_Lib.Repository
     {
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // CREATE
+        /// <summary>
+        /// Gemmer en ny leder i databasen.
+        /// </summary>
+        /// <param name="leder">Den leder der skal gemmes. Dens Id sættes til det id databasen tildeler.</param>
         public void Opret(Leder leder)
         {
             db.OpretForbindelse();
@@ -30,7 +33,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // READ - hent alle ledere
+        /// <summary>
+        /// Henter alle ledere fra databasen.
+        /// </summary>
+        /// <returns>En liste med alle ledere. Listen er tom hvis der ingen ledere er.</returns>
         public List<Leder> HentAlle()
         {
             List<Leder> ledere = new List<Leder>();
@@ -62,7 +68,11 @@ namespace DLS_Lib.Repository
             return ledere;
         }
 
-        // READ - hent én leder
+        /// <summary>
+        /// Henter én leder fra databasen.
+        /// </summary>
+        /// <param name="id">Id på den leder der skal hentes.</param>
+        /// <returns>Lederen, eller null hvis lederen ikke findes.</returns>
         public Leder? HentEn(int id)
         {
             db.OpretForbindelse();
@@ -94,7 +104,10 @@ namespace DLS_Lib.Repository
             return leder;
         }
 
-        // UPDATE
+        /// <summary>
+        /// Opdaterer en leder i databasen.
+        /// </summary>
+        /// <param name="leder">Lederen med de nye oplysninger. Dens Id afgør hvilken række der opdateres.</param>
         public void Opdater(Leder leder)
         {
             db.OpretForbindelse();
@@ -116,7 +129,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // DELETE
+        /// <summary>
+        /// Sletter en leder fra databasen. Lederens kobling til aktiviteter slettes automatisk med ON DELETE CASCADE.
+        /// </summary>
+        /// <param name="id">Id på den leder der skal slettes.</param>
         public void Slet(int id)
         {
             db.OpretForbindelse();

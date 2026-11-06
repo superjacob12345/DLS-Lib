@@ -10,18 +10,31 @@ namespace DLS_Web.Pages.Ledere
         private LederRepository _repo;
         private AktivitetRepository _aktivitetRepo;
 
-        // Listen som vises på siden
+        /// <summary>
+        /// Listen af ledere som vises på siden, sorteret efter navn.
+        /// </summary>
         public List<Leder> Ledere { get; set; } = new List<Leder>();
 
-        // Den leder der er logget ind (kan ikke slette sig selv)
+        /// <summary>
+        /// Id på den leder der er logget ind. En leder kan ikke slette sig selv.
+        /// </summary>
         public int MitId { get; set; }
 
+        /// <summary>
+        /// Opretter siden med de repositories den skal bruge.
+        /// </summary>
+        /// <param name="repo">Repository til ledere.</param>
+        /// <param name="aktivitetRepo">Repository til aktiviteter.</param>
         public IndexModel(LederRepository repo, AktivitetRepository aktivitetRepo)
         {
             _repo = repo;
             _aktivitetRepo = aktivitetRepo;
         }
 
+        /// <summary>
+        /// Viser listen af ledere. Kun ledere har adgang.
+        /// </summary>
+        /// <returns>Siden, eller en omdirigering til login hvis brugeren ikke er leder.</returns>
         public IActionResult OnGet()
         {
             // Kun ledere må se siden
@@ -35,6 +48,11 @@ namespace DLS_Web.Pages.Ledere
             return Page();
         }
 
+        /// <summary>
+        /// Sletter en leder. En leder kan ikke slette sig selv eller en leder der er eneste leder på en aktivitet.
+        /// </summary>
+        /// <param name="id">Id på den leder der skal slettes.</param>
+        /// <returns>En omdirigering tilbage til siden, eller til login hvis brugeren ikke er leder.</returns>
         public IActionResult OnPostSlet(int id)
         {
             if (HttpContext.Session.GetString("Rolle") != "Leder")
@@ -69,7 +87,11 @@ namespace DLS_Web.Pages.Ledere
             return RedirectToPage();
         }
 
-        // Navnene på de aktiviteter lederen står for
+        /// <summary>
+        /// Laver en kommasepareret tekst med navnene på de aktiviteter en leder står for.
+        /// </summary>
+        /// <param name="leder">Lederen hvis aktiviteter skal findes.</param>
+        /// <returns>Aktiviteternes navne adskilt af komma. Teksten er tom hvis lederen ikke står for nogen aktiviteter.</returns>
         public string AktivitetNavne(Leder leder)
         {
             string navne = "";

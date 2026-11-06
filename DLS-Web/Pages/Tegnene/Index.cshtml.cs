@@ -12,9 +12,17 @@ namespace DLS_Web.Pages.Tegnene
         private SpejderRepository _spejderRepo;
         private AktivitetRepository _aktivitetRepo;
 
-        // Listen som vises på siden
+        /// <summary>
+        /// Listen af tegn som vises på siden, sorteret efter navn.
+        /// </summary>
         public List<Tegn> Tegn { get; set; } = new List<Tegn>();
 
+        /// <summary>
+        /// Opretter siden med de repositories den skal bruge.
+        /// </summary>
+        /// <param name="repo">Repository til tegn.</param>
+        /// <param name="spejderRepo">Repository til spejdere.</param>
+        /// <param name="aktivitetRepo">Repository til aktiviteter.</param>
         public IndexModel(TegnRepository repo, SpejderRepository spejderRepo, AktivitetRepository aktivitetRepo)
         {
             _repo = repo;
@@ -22,6 +30,10 @@ namespace DLS_Web.Pages.Tegnene
             _aktivitetRepo = aktivitetRepo;
         }
 
+        /// <summary>
+        /// Viser listen af tegn. Kun ledere har adgang.
+        /// </summary>
+        /// <returns>Siden, eller en omdirigering til login hvis brugeren ikke er leder.</returns>
         public IActionResult OnGet()
         {
             // Kun ledere må se siden
@@ -34,6 +46,11 @@ namespace DLS_Web.Pages.Tegnene
             return Page();
         }
 
+        /// <summary>
+        /// Sletter et tegn. Kun ledere må slette.
+        /// </summary>
+        /// <param name="id">Id på det tegn der skal slettes.</param>
+        /// <returns>En omdirigering tilbage til siden, eller til login hvis brugeren ikke er leder.</returns>
         public IActionResult OnPostSlet(int id)
         {
             if (HttpContext.Session.GetString("Rolle") != "Leder")
@@ -47,7 +64,11 @@ namespace DLS_Web.Pages.Tegnene
             return RedirectToPage();
         }
 
-        // Hvor mange spejdere har tegnet
+        /// <summary>
+        /// Tæller hvor mange spejdere der har et tegn.
+        /// </summary>
+        /// <param name="tegn">Tegnet der skal tælles for.</param>
+        /// <returns>Antallet af spejdere der har tegnet.</returns>
         public int AntalSpejdere(Tegn tegn)
         {
             int antal = 0;
@@ -61,7 +82,11 @@ namespace DLS_Web.Pages.Tegnene
             return antal;
         }
 
-        // Hvor mange aktiviteter kræver tegnet
+        /// <summary>
+        /// Tæller hvor mange aktiviteter der kræver et tegn.
+        /// </summary>
+        /// <param name="tegn">Tegnet der skal tælles for.</param>
+        /// <returns>Antallet af aktiviteter der kræver tegnet.</returns>
         public int AntalAktiviteter(Tegn tegn)
         {
             int antal = 0;

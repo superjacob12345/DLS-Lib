@@ -9,7 +9,10 @@ namespace DLS_Lib.Repository
     {
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // READ - hent alle tilmeldinger
+        /// <summary>
+        /// Henter alle tilmeldinger fra databasen.
+        /// </summary>
+        /// <returns>En liste med alle tilmeldinger. Listen er tom hvis der ingen tilmeldinger er.</returns>
         public List<Tilmelding> HentAlle()
         {
             List<Tilmelding> tilmeldinger = new List<Tilmelding>();
@@ -40,7 +43,11 @@ namespace DLS_Lib.Repository
             return tilmeldinger;
         }
 
-        // READ - hent alle tilmeldinger for én spejder
+        /// <summary>
+        /// Henter alle tilmeldinger for én spejder.
+        /// </summary>
+        /// <param name="spejderId">Id på spejderen.</param>
+        /// <returns>En liste med spejderens tilmeldinger. Listen er tom hvis spejderen ikke er tilmeldt noget.</returns>
         public List<Tilmelding> HentForSpejder(int spejderId)
         {
             List<Tilmelding> resultat = new List<Tilmelding>();
@@ -72,7 +79,11 @@ namespace DLS_Lib.Repository
             return resultat;
         }
 
-        // READ - hent alle tilmeldinger til én aktivitet
+        /// <summary>
+        /// Henter alle tilmeldinger til én aktivitet.
+        /// </summary>
+        /// <param name="aktivitetId">Id på aktiviteten.</param>
+        /// <returns>En liste med aktivitetens tilmeldinger. Listen er tom hvis ingen er tilmeldt.</returns>
         public List<Tilmelding> HentForAktivitet(int aktivitetId)
         {
             List<Tilmelding> resultat = new List<Tilmelding>();
@@ -104,7 +115,12 @@ namespace DLS_Lib.Repository
             return resultat;
         }
 
-        // Tjek om spejderen allerede er tilmeldt
+        /// <summary>
+        /// Tjekker om en spejder allerede er tilmeldt en aktivitet.
+        /// </summary>
+        /// <param name="spejderId">Id på spejderen.</param>
+        /// <param name="aktivitetId">Id på aktiviteten.</param>
+        /// <returns>true hvis spejderen er tilmeldt aktiviteten, ellers false.</returns>
         public bool ErTilmeldt(int spejderId, int aktivitetId)
         {
             db.OpretForbindelse();
@@ -126,7 +142,12 @@ namespace DLS_Lib.Repository
             return antal > 0;
         }
 
-        // Tjek reglerne for tilmelding
+        /// <summary>
+        /// Tjekker reglerne for tilmelding: Spejderen må ikke allerede være tilmeldt, aktiviteten må ikke være fuld, spejderen skal være gammel nok og have alle krævede tegn, og aktiviteten må ikke være begyndt.
+        /// </summary>
+        /// <param name="spejder">Den spejder der vil tilmeldes.</param>
+        /// <param name="aktivitet">Den aktivitet spejderen vil tilmeldes.</param>
+        /// <returns>En tom tekst hvis spejderen kan tilmeldes, ellers en fejlbesked med den første regel der ikke er opfyldt.</returns>
         public string KanTilmelde(Spejder spejder, Aktivitet aktivitet)
         {
             if (ErTilmeldt(spejder.Id, aktivitet.Id))
@@ -160,7 +181,12 @@ namespace DLS_Lib.Repository
             return "";
         }
 
-        // CREATE - tilmeld en spejder
+        /// <summary>
+        /// Tilmelder en spejder til en aktivitet, hvis reglerne i KanTilmelde er opfyldt. Tilmeldingsdatoen sættes til dags dato.
+        /// </summary>
+        /// <param name="spejder">Den spejder der skal tilmeldes.</param>
+        /// <param name="aktivitet">Den aktivitet spejderen skal tilmeldes.</param>
+        /// <returns>En tom tekst hvis tilmeldingen lykkedes, ellers en fejlbesked.</returns>
         public string Tilmeld(Spejder spejder, Aktivitet aktivitet)
         {
             string fejl = KanTilmelde(spejder, aktivitet);
@@ -190,7 +216,11 @@ namespace DLS_Lib.Repository
             return "";
         }
 
-        // DELETE - frameld en spejder fra en aktivitet
+        /// <summary>
+        /// Framelder en spejder fra en aktivitet.
+        /// </summary>
+        /// <param name="spejderId">Id på den spejder der skal frameldes.</param>
+        /// <param name="aktivitetId">Id på den aktivitet spejderen skal frameldes.</param>
         public void Frameld(int spejderId, int aktivitetId)
         {
             db.OpretForbindelse();
@@ -209,7 +239,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // DELETE - slet alle tilmeldinger til en aktivitet
+        /// <summary>
+        /// Sletter alle tilmeldinger til en aktivitet.
+        /// </summary>
+        /// <param name="aktivitetId">Id på aktiviteten.</param>
         public void SletForAktivitet(int aktivitetId)
         {
             db.OpretForbindelse();
@@ -225,7 +258,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // DELETE - slet alle tilmeldinger for en spejder
+        /// <summary>
+        /// Sletter alle tilmeldinger for en spejder.
+        /// </summary>
+        /// <param name="spejderId">Id på spejderen.</param>
         public void SletForSpejder(int spejderId)
         {
             db.OpretForbindelse();

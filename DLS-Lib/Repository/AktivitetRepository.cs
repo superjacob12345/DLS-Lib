@@ -10,7 +10,10 @@ namespace DLS_Lib.Repository
     {
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // CREATE
+        /// <summary>
+        /// Gemmer en ny aktivitet i databasen sammen med dens ledere og krævede tegn.
+        /// </summary>
+        /// <param name="aktivitet">Den aktivitet der skal gemmes. Dens Id sættes til det id databasen tildeler.</param>
         public void Opret(Aktivitet aktivitet)
         {
             db.OpretForbindelse();
@@ -37,7 +40,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // READ - hent alle aktiviteter
+        /// <summary>
+        /// Henter alle aktiviteter fra databasen med deres ledere og krævede tegn.
+        /// </summary>
+        /// <returns>En liste med alle aktiviteter. Listen er tom hvis der ingen aktiviteter er.</returns>
         public List<Aktivitet> HentAlle()
         {
             var aktiviteter = new List<Aktivitet>();
@@ -68,7 +74,11 @@ namespace DLS_Lib.Repository
             return aktiviteter;
         }
 
-        // READ - hent én aktivitet
+        /// <summary>
+        /// Henter én aktivitet fra databasen med dens ledere og krævede tegn.
+        /// </summary>
+        /// <param name="id">Id på den aktivitet der skal hentes.</param>
+        /// <returns>Aktiviteten, eller null hvis den ikke findes.</returns>
         public Aktivitet? HentEn(int id)
         {
             db.OpretForbindelse();
@@ -102,7 +112,10 @@ namespace DLS_Lib.Repository
             return aktivitet;
         }
 
-        // UPDATE
+        /// <summary>
+        /// Opdaterer en aktivitet i databasen. Aktivitetens ledere og krævede tegn slettes og gemmes igen ud fra objektet.
+        /// </summary>
+        /// <param name="aktivitet">Aktiviteten med de nye oplysninger. Dens Id afgør hvilken række der opdateres.</param>
         public void Opdater(Aktivitet aktivitet)
         {
             db.OpretForbindelse();
@@ -140,7 +153,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // DELETE (ledere, tegn og tilmeldinger slettes automatisk med ON DELETE CASCADE)
+        /// <summary>
+        /// Sletter en aktivitet fra databasen. Dens ledere, tegn og tilmeldinger slettes automatisk med ON DELETE CASCADE.
+        /// </summary>
+        /// <param name="id">Id på den aktivitet der skal slettes.</param>
         public void Slet(int id)
         {
             db.OpretForbindelse();

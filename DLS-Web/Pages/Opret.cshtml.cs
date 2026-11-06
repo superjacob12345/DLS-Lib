@@ -14,38 +14,62 @@ namespace DLS_Web.Pages
         private LederRepository _lederRepo;
 
         // Samme regler som på Spejder-klassen
+        /// <summary>
+        /// Den nye spejders navn. Skal udfyldes og må højst være 100 tegn.
+        /// </summary>
         [BindProperty]
         [Required(ErrorMessage = "Skriv dit navn")]
         [StringLength(100, ErrorMessage = "Navnet må højst være 100 tegn")]
         public string Navn { get; set; } = "";
 
+        /// <summary>
+        /// Det brugernavn spejderen vil logge ind med. Skal være mellem 3 og 50 tegn uden mellemrum.
+        /// </summary>
         [BindProperty]
         [Required(ErrorMessage = "Skriv et brugernavn")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Brugernavnet skal være mellem 3 og 50 tegn")]
         [RegularExpression(@"^\S+$", ErrorMessage = "Brugernavnet må ikke indeholde mellemrum")]
         public string BrugerNavn { get; set; } = "";
 
+        /// <summary>
+        /// Den adgangskode spejderen vil logge ind med. Skal være mellem 4 og 100 tegn.
+        /// </summary>
         [BindProperty]
         [Required(ErrorMessage = "Skriv en adgangskode")]
         [StringLength(100, MinimumLength = 4, ErrorMessage = "Adgangskoden skal være mellem 4 og 100 tegn")]
         public string Adgangskode { get; set; } = "";
 
+        /// <summary>
+        /// Adgangskoden skrevet igen. Skal være den samme som Adgangskode.
+        /// </summary>
         [BindProperty]
         [Required(ErrorMessage = "Gentag adgangskoden")]
         [Compare(nameof(Adgangskode), ErrorMessage = "De to adgangskoder er ikke ens")]
         public string GentagAdgangskode { get; set; } = "";
 
+        /// <summary>
+        /// Den nye spejders fødselsdato. Må ikke ligge i fremtiden eller mere end 100 år tilbage.
+        /// </summary>
         [BindProperty]
         [Display(Name = "Fødselsdato")]
         [Foedselsdato]
         public DateOnly Foedselsdato { get; set; }
 
+        /// <summary>
+        /// Opretter siden med de repositories den skal bruge.
+        /// </summary>
+        /// <param name="spejderRepo">Repository til spejdere.</param>
+        /// <param name="lederRepo">Repository til ledere.</param>
         public OpretModel(SpejderRepository spejderRepo, LederRepository lederRepo)
         {
             _spejderRepo = spejderRepo;
             _lederRepo = lederRepo;
         }
 
+        /// <summary>
+        /// Viser formularen, medmindre man allerede er logget ind. Fødselsdatoen får en startværdi på 10 år tilbage.
+        /// </summary>
+        /// <returns>Siden, eller en omdirigering til aktiviteterne hvis man allerede er logget ind.</returns>
         public IActionResult OnGet()
         {
             // Er man allerede logget ind, behøver man ikke oprette sig
@@ -58,6 +82,10 @@ namespace DLS_Web.Pages
             return Page();
         }
 
+        /// <summary>
+        /// Validerer formularen, opretter spejderen og logger spejderen ind med det samme.
+        /// </summary>
+        /// <returns>En omdirigering til aktiviteterne når spejderen er oprettet, ellers siden igen med valideringsfejl.</returns>
         public IActionResult OnPost()
         {
             // Tomme tekstfelter kommer ind som null, så de laves om til ""

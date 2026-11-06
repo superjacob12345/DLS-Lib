@@ -13,10 +13,26 @@ namespace DLS_Web.Pages
         private SpejderRepository _spejderRepo;
         private TegnRepository _tegnRepo;
 
+        /// <summary>
+        /// De aktiviteter spejderen er tilmeldt, sorteret efter tidspunkt.
+        /// </summary>
         public List<Aktivitet> Aktiviteter { get; set; } = new List<Aktivitet>();
+        /// <summary>
+        /// De tegn spejderen har taget.
+        /// </summary>
         public List<Tegn> MineTegn { get; set; } = new List<Tegn>();
+        /// <summary>
+        /// Den spejder der er logget ind.
+        /// </summary>
         public Spejder MigSelv { get; set; } = new Spejder();
 
+        /// <summary>
+        /// Opretter siden med de repositories den skal bruge.
+        /// </summary>
+        /// <param name="aktivitetRepo">Repository til aktiviteter.</param>
+        /// <param name="tilmeldingRepo">Repository til tilmeldinger.</param>
+        /// <param name="spejderRepo">Repository til spejdere.</param>
+        /// <param name="tegnRepo">Repository til tegn.</param>
         public MineAktiviteterModel(AktivitetRepository aktivitetRepo, TilmeldingRepository tilmeldingRepo,
             SpejderRepository spejderRepo, TegnRepository tegnRepo)
         {
@@ -26,6 +42,10 @@ namespace DLS_Web.Pages
             _tegnRepo = tegnRepo;
         }
 
+        /// <summary>
+        /// Viser den indloggede spejders aktiviteter og tegn. Kun spejdere har adgang.
+        /// </summary>
+        /// <returns>Siden, eller en omdirigering til login hvis brugeren ikke er spejder eller spejderen er blevet slettet.</returns>
         public IActionResult OnGet()
         {
             // Kun spejdere har en liste over egne aktiviteter
@@ -64,6 +84,11 @@ namespace DLS_Web.Pages
             return Page();
         }
 
+        /// <summary>
+        /// Framelder den spejder der er logget ind, fra en aktivitet.
+        /// </summary>
+        /// <param name="id">Id på aktiviteten.</param>
+        /// <returns>En omdirigering tilbage til siden, eller til login hvis brugeren ikke er spejder.</returns>
         public IActionResult OnPostFrameld(int id)
         {
             if (HttpContext.Session.GetString("Rolle") != "Spejder")

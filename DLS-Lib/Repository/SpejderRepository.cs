@@ -9,7 +9,10 @@ namespace DLS_Lib.Repository
     {
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // CREATE
+        /// <summary>
+        /// Gemmer en ny spejder i databasen sammen med spejderens tegn.
+        /// </summary>
+        /// <param name="spejder">Den spejder der skal gemmes. Dens Id sættes til det id databasen tildeler.</param>
         public void Opret(Spejder spejder)
         {
             db.OpretForbindelse();
@@ -34,7 +37,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // READ - hent alle spejdere
+        /// <summary>
+        /// Henter alle spejdere fra databasen med deres tegn.
+        /// </summary>
+        /// <returns>En liste med alle spejdere. Listen er tom hvis der ingen spejdere er.</returns>
         public List<Spejder> HentAlle()
         {
             List<Spejder> spejdere = new List<Spejder>();
@@ -64,7 +70,11 @@ namespace DLS_Lib.Repository
             return spejdere;
         }
 
-        // READ - hent én spejder
+        /// <summary>
+        /// Henter én spejder fra databasen med spejderens tegn.
+        /// </summary>
+        /// <param name="id">Id på den spejder der skal hentes.</param>
+        /// <returns>Spejderen, eller null hvis spejderen ikke findes.</returns>
         public Spejder? HentEn(int id)
         {
             db.OpretForbindelse();
@@ -98,7 +108,10 @@ namespace DLS_Lib.Repository
             return spejder;
         }
 
-        // UPDATE
+        /// <summary>
+        /// Opdaterer en spejder i databasen. Spejderens tegn slettes og gemmes igen ud fra objektet.
+        /// </summary>
+        /// <param name="spejder">Spejderen med de nye oplysninger. Dens Id afgør hvilken række der opdateres.</param>
         public void Opdater(Spejder spejder)
         {
             db.OpretForbindelse();
@@ -131,7 +144,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // DELETE (tegn og tilmeldinger slettes automatisk med ON DELETE CASCADE)
+        /// <summary>
+        /// Sletter en spejder fra databasen. Spejderens tegn og tilmeldinger slettes automatisk med ON DELETE CASCADE.
+        /// </summary>
+        /// <param name="id">Id på den spejder der skal slettes.</param>
         public void Slet(int id)
         {
             db.OpretForbindelse();

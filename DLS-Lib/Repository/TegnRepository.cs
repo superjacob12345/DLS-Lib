@@ -9,7 +9,10 @@ namespace DLS_Lib.Repository
     {
         private DLSopretForbindelse db = new DLSopretForbindelse();
 
-        // CREATE
+        /// <summary>
+        /// Gemmer et nyt tegn i databasen.
+        /// </summary>
+        /// <param name="tegn">Det tegn der skal gemmes. Dets Id sættes til det id databasen tildeler.</param>
         public void Opret(Tegn tegn)
         {
             db.OpretForbindelse();
@@ -27,7 +30,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // READ - hent alle tegn
+        /// <summary>
+        /// Henter alle tegn fra databasen.
+        /// </summary>
+        /// <returns>En liste med alle tegn. Listen er tom hvis der ingen tegn er.</returns>
         public List<Tegn> HentAlle()
         {
             List<Tegn> tegnListe = new List<Tegn>();
@@ -57,7 +63,11 @@ namespace DLS_Lib.Repository
             return tegnListe;
         }
 
-        // READ - hent ét tegn
+        /// <summary>
+        /// Henter ét tegn fra databasen.
+        /// </summary>
+        /// <param name="id">Id på det tegn der skal hentes.</param>
+        /// <returns>Tegnet, eller null hvis det ikke findes.</returns>
         public Tegn? HentEn(int id)
         {
             db.OpretForbindelse();
@@ -87,7 +97,10 @@ namespace DLS_Lib.Repository
             return tegn;
         }
 
-        // UPDATE
+        /// <summary>
+        /// Opdaterer et tegn i databasen.
+        /// </summary>
+        /// <param name="tegn">Tegnet med de nye oplysninger. Dets Id afgør hvilken række der opdateres.</param>
         public void Opdater(Tegn tegn)
         {
             db.OpretForbindelse();
@@ -105,7 +118,10 @@ namespace DLS_Lib.Repository
             db.LukForbindelse();
         }
 
-        // DELETE
+        /// <summary>
+        /// Sletter et tegn fra databasen. Tegnet fjernes automatisk fra spejdere og aktiviteter med ON DELETE CASCADE.
+        /// </summary>
+        /// <param name="id">Id på det tegn der skal slettes.</param>
         public void Slet(int id)
         {
             db.OpretForbindelse();

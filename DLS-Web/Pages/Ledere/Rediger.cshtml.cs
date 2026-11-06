@@ -11,23 +11,41 @@ namespace DLS_Web.Pages.Ledere
         private LederRepository _repo;
         private SpejderRepository _spejderRepo;
 
+        /// <summary>
+        /// Den leder der oprettes eller rettes i formularen.
+        /// </summary>
         [BindProperty]
         public Leder Leder { get; set; } = new Leder();
 
-        // Fejlbeskeder der vises over formularen
+        /// <summary>
+        /// Fejlbeskeder der vises over formularen.
+        /// </summary>
         public List<string> Fejl { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Angiver om lederen er ny og endnu ikke gemt (Id er 0).
+        /// </summary>
         public bool ErNy
         {
             get { return Leder.Id == 0; }
         }
 
+        /// <summary>
+        /// Opretter siden med de repositories den skal bruge.
+        /// </summary>
+        /// <param name="repo">Repository til ledere.</param>
+        /// <param name="spejderRepo">Repository til spejdere.</param>
         public RedigerModel(LederRepository repo, SpejderRepository spejderRepo)
         {
             _repo = repo;
             _spejderRepo = spejderRepo;
         }
 
+        /// <summary>
+        /// Viser formularen. Uden id er den tom, og med id hentes den leder der skal rettes. Kun ledere har adgang.
+        /// </summary>
+        /// <param name="id">Id på den leder der skal rettes, eller null ved oprettelse.</param>
+        /// <returns>Siden, en omdirigering til login hvis brugeren ikke er leder, eller NotFound hvis lederen ikke findes.</returns>
         public IActionResult OnGet(int? id)
         {
             // Kun ledere må oprette og rette ledere
@@ -48,6 +66,10 @@ namespace DLS_Web.Pages.Ledere
             return Page();
         }
 
+        /// <summary>
+        /// Validerer formularen og opretter eller opdaterer lederen. Lader man adgangskoden stå tom ved rettelse, beholdes den gamle. Kun ledere har adgang.
+        /// </summary>
+        /// <returns>En omdirigering til oversigten når lederen er gemt, siden igen ved valideringsfejl, eller en omdirigering til login hvis brugeren ikke er leder.</returns>
         public IActionResult OnPost()
         {
             if (HttpContext.Session.GetString("Rolle") != "Leder")

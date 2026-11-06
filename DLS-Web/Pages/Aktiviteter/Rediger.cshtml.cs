@@ -14,18 +14,36 @@ namespace DLS_Web.Pages.Aktiviteter
         private TegnRepository _tegnRepo;
         private TilmeldingRepository _tilmeldingRepo;
 
+        /// <summary>
+        /// Den aktivitet der oprettes eller rettes i formularen.
+        /// </summary>
         [BindProperty]
         public Aktivitet Aktivitet { get; set; } = new Aktivitet();
 
-        // Til afkrydsningsfelterne
+        /// <summary>
+        /// Alle ledere, som vises som afkrydsningsfelter i formularen.
+        /// </summary>
         public List<Leder> AlleLedere { get; set; } = new List<Leder>();
+        /// <summary>
+        /// Alle tegn, som vises som afkrydsningsfelter i formularen.
+        /// </summary>
         public List<Tegn> AlleTegn { get; set; } = new List<Tegn>();
 
+        /// <summary>
+        /// Angiver om aktiviteten er ny og endnu ikke gemt (Id er 0).
+        /// </summary>
         public bool ErNy
         {
             get { return Aktivitet.Id == 0; }
         }
 
+        /// <summary>
+        /// Opretter siden med de repositories den skal bruge.
+        /// </summary>
+        /// <param name="aktivitetRepo">Repository til aktiviteter.</param>
+        /// <param name="lederRepo">Repository til ledere.</param>
+        /// <param name="tegnRepo">Repository til tegn.</param>
+        /// <param name="tilmeldingRepo">Repository til tilmeldinger.</param>
         public RedigerModel(AktivitetRepository aktivitetRepo, LederRepository lederRepo,
             TegnRepository tegnRepo, TilmeldingRepository tilmeldingRepo)
         {
@@ -35,6 +53,11 @@ namespace DLS_Web.Pages.Aktiviteter
             _tilmeldingRepo = tilmeldingRepo;
         }
 
+        /// <summary>
+        /// Viser formularen. Uden id udfyldes den med forslag til en ny aktivitet, og med id hentes den aktivitet der skal rettes. Kun ledere har adgang.
+        /// </summary>
+        /// <param name="id">Id på den aktivitet der skal rettes, eller null ved oprettelse.</param>
+        /// <returns>Siden, en omdirigering til login hvis brugeren ikke er leder, eller NotFound hvis aktiviteten ikke findes.</returns>
         public IActionResult OnGet(int? id)
         {
             // Kun ledere må oprette og rette aktiviteter
@@ -65,6 +88,10 @@ namespace DLS_Web.Pages.Aktiviteter
             return Page();
         }
 
+        /// <summary>
+        /// Validerer formularen og opretter eller opdaterer aktiviteten. Kun ledere har adgang.
+        /// </summary>
+        /// <returns>En omdirigering til oversigten når aktiviteten er gemt, siden igen ved valideringsfejl, en omdirigering til login hvis brugeren ikke er leder, eller NotFound hvis aktiviteten ikke findes.</returns>
         public IActionResult OnPost()
         {
             if (HttpContext.Session.GetString("Rolle") != "Leder")
